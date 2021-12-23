@@ -1,7 +1,3 @@
-//
-// Created by Gleb.Oborin on 10/20/21.
-//
-
 #ifndef PO_MAPF_MAP_H
 #define PO_MAPF_MAP_H
 
@@ -17,10 +13,8 @@ public:
     int cellToInt(Cell c) const;
     Cell intToCell(int x) const;
 
-    static double h(Cell s, Cell t);
-    double h(int s, int t) const;
-    static double distance(Cell s, Cell t);
-    double distance(int s, int t) const;
+    static int h(Cell s, Cell t);
+    int h(int s, int t) const;
 };
 
 

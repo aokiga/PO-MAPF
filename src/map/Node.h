@@ -1,7 +1,3 @@
-//
-// Created by Gleb.Oborin on 10/20/21.
-//
-
 #include <vector>
 
 #ifndef PO_MAPF_NODE_H

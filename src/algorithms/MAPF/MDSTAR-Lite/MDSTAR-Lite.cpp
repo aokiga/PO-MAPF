@@ -1,9 +1,9 @@
 //
 // Created by Gleb.Oborin on 10/20/21.
 //
-
+/*
 #include "MDSTAR_Lite.h"
-#include "../map/Map.h"
+#include "../../../map/Map.h"
 #include <vector>
 #include <set>
 #include <iostream>
@@ -19,7 +19,6 @@ std::vector<int> A_Star(Map &g, int start, int end) {
         a.erase(a.begin());
         int v = vv.second;
         if (v == end) break;
-        //std::cerr << g.g[v].neighbors.size() << '\n';
         for (auto to : g.g[v].neighbors) {
             if (g.g[to].isBlocked) continue;
             if (1 + d[v] < d[to]) {
@@ -46,7 +45,7 @@ ScenarioResult MDSTAR_Lite::run(Map &g, Scenario &scen) {
     int n = scen.agents.size();
     std::vector<AgentResult> results(n);
     for (int i = 0; i < n; ++i) {
-        results[i].trueAnswer = scen.agents[i].answer;
+        //results[i].trueAnswer = scen.agents[i].answer;
         results[i].path.push_back(scen.agents[i].start);
         int curv = g.cellToInt(scen.agents[i].start);
         g.g[curv].isBlocked = true;
@@ -78,3 +77,4 @@ ScenarioResult MDSTAR_Lite::run(Map &g, Scenario &scen) {
     }
     return ScenarioResult(results);
 }
+*/

@@ -1,6 +1,5 @@
 class Agent:
-    def __init__(self, i, answer, true_answer, path):
+    def __init__(self, i, start, end):
         self.i = i
-        self.answer = answer
-        self.true_answer = true_answer
-        self.path = path
+        self.start = start
+        self.end = end

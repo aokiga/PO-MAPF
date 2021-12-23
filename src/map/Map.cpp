@@ -1,7 +1,3 @@
-//
-// Created by Gleb.Oborin on 10/20/21.
-//
-
 #include "Map.h"
 #include <cmath>
 
@@ -52,18 +48,10 @@ Cell Map::intToCell(int x) const {
     return { x / width, x % width };
 }
 
-double Map::h(Cell s, Cell t) {
+int Map::h(Cell s, Cell t) {
     return abs(s.first - t.first) + abs(s.second - t.second);
 }
 
-double Map::h(int s, int t) const {
+int Map::h(int s, int t) const {
     return Map::h(intToCell(s), intToCell(t));
-}
-
-double Map::distance(Cell s, Cell t) {
-    return sqrt((s.first - t.first) * (s.first - t.first) + (s.second - t.second) * (s.second - t.second));
-}
-
-double Map::distance(int s, int t) const {
-    return Map::distance(intToCell(s), intToCell(t));
 }

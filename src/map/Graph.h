@@ -1,7 +1,3 @@
-//
-// Created by Gleb.Oborin on 10/20/21.
-//
-
 #include <vector>
 #include <string>
 #include "Node.h"

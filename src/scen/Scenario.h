@@ -1,7 +1,3 @@
-//
-// Created by Gleb.Oborin on 10/20/21.
-//
-
 #include <vector>
 #include "Agent.h"
 
@@ -10,9 +6,11 @@
 
 class Scenario {
 public:
-    std::vector<Agent> agents;
+    std::vector<Agent> agents = std::vector<Agent>();
 
     explicit Scenario(std::vector<Agent> &a) : agents(a) {}
+
+    Scenario() = default;
 };
 
 
