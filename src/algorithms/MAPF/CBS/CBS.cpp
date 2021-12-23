@@ -10,14 +10,17 @@
 #include "CGHeuristic.h"
 #include <iostream>
 #include <algorithm>
+#include <random>
+
+std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
 
 ScenarioResult CBS::run() {
     std::vector<AgentResult> res(scenario.agents.size());
 
     treeVertexConstraints.push_back(std::vector<VertexConstraints>(scenario.agents.size()));
     treeEdgeConstraints.push_back(std::vector<EdgeConstraints>(scenario.agents.size()));
-    treeLandmarks.push_back(std::vector<VertexConstraints>(scenario.agents.size()));
-    treeAllLandmarks.push_back(std::map<VertexState, int>());
+    treeLandmarks.push_back(std::vector<std::set<VertexState>>(scenario.agents.size()));
+    treeAllLandmarks.push_back(std::unordered_map<VertexState, int, hash_VertexState>());
 
     for (int i = 0; i < scenario.agents.size(); ++i) {
         treeLandmarks[0][i].insert(std::make_pair(0, map.cellToInt(scenario.agents[i].start)));
@@ -163,7 +166,7 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
             positionsV[pos].push_back({i, isFinish});
         }
 
-        std::map<std::pair<int, int>, std::vector<int>> positionsE;
+        std::unordered_map<std::pair<int, int>, std::vector<int>, hash_VertexState> positionsE;
         for (int i = 0; i < scenarioResult.agents.size(); ++i) {
             AgentResult agent = scenarioResult.agents[i];
             if (t + 1 >= agent.path.size()) continue;
@@ -195,18 +198,12 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
                     VertexConflict conflict = VertexConflict(v1.first, v2.first, x.first, t);
                     conflict.isA1Finished = v1.second;
                     conflict.isA2Finished = v2.second;
-                    if (param->ICBSOptimization == ICBS_OPTIMIZATIONS::PC) { // if PC ICBSOptimization -> return first semicardinal conflict
-                        if (isSemiCardinalConflict(conflict, scenarioResult)) {
-                            return std::make_pair(std::vector<VertexConflict>(1, conflict),
-                                                  std::vector<EdgeConflict>());
-                        }
-                    }
                     vertexConflicts.push_back(conflict);
                 }
             }
         }
 
-        std::set<std::pair<int, int>> used;
+        std::unordered_set<std::pair<int, int>, hash_VertexState> used;
         for (auto &x : positionsE) {
             used.insert(x.first);
             std::pair<int, int> y = std::make_pair(x.first.second, x.first.first);
@@ -214,11 +211,6 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
             for (int v1 : x.second) {
                 for (int v2 : positionsE[y]) {
                     EdgeConflict conflict = EdgeConflict(v1, v2, x.first.first, x.first.second, t);
-                    if (param->ICBSOptimization == ICBS_OPTIMIZATIONS::PC) { // if PC ICBSOptimization -> return first semicardinal conflict
-                        if (isSemiCardinalConflict(conflict, scenarioResult)) {
-                            return std::make_pair(std::vector<VertexConflict>(), std::vector<EdgeConflict>(1, conflict));
-                        }
-                    }
                     edgeConflicts.push_back(conflict);
                 }
             }
@@ -264,7 +256,7 @@ Conflicts CBS::chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResu
                                   std::vector<EdgeConflict>(1, conflicts.second.front()));
     }
     if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM) {
-        int pos = rand() % (conflicts.first.size() + conflicts.second.size());
+        int pos = rnd() % (conflicts.first.size() + conflicts.second.size());
         if (pos < conflicts.first.size()) {
             return std::make_pair(std::vector<VertexConflict>(1, conflicts.first[pos]),
                                   std::vector<EdgeConflict>(0));
@@ -276,7 +268,7 @@ Conflicts CBS::chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResu
     }
     if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::WIDTH) {
         if (type != 2) {
-            int pos = rand() % (conflicts.first.size() + conflicts.second.size());
+            int pos = rnd() % (conflicts.first.size() + conflicts.second.size());
             if (pos < conflicts.first.size()) {
                 return std::make_pair(std::vector<VertexConflict>(1, conflicts.first[pos]),
                                       std::vector<EdgeConflict>(0));
@@ -408,7 +400,7 @@ void CBS::solveConflictDC(int node, VertexConflict &conflict) {
             v = conflict.a1;
         }
         if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM) {
-            if (rand() % 2) {
+            if (rnd() % 2) {
                 v = conflict.a1;
             } else {
                 v = conflict.a2;
@@ -470,7 +462,7 @@ void CBS::solveConflictDC(int node, EdgeConflict &conflict) {
         revflag = false;
     }
     if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM) {
-        if (rand() % 2) {
+        if (rnd() % 2) {
             v = conflict.a1;
             revflag = false;
         } else {
@@ -609,11 +601,11 @@ ScenarioResult CBS::lowLevelSearch(
 
 int CBS::computePathBetweenLandmarks(
         int agentNum,
-        std::set<VertexState> &vertexConstraints,
-        std::set<EdgeState> &edgeConstraints,
-        std::map<VertexState, VertexInfo> &dist,
-        std::map<VertexState, VertexState> &p,
-        std::map<VertexState, int> &blocked,
+        VertexConstraints &vertexConstraints,
+        EdgeConstraints &edgeConstraints,
+        std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
+        std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
+        std::unordered_map<VertexState, int, hash_VertexState> &blocked,
         VertexState startState,
         VertexState endState,
         int endH
@@ -654,16 +646,16 @@ int CBS::computePathBetweenLandmarks(
 
 AgentResult CBS::computePath(
         Agent &a,
-        std::set<VertexState> &vertexConstraints,
-        std::set<EdgeState> &edgeConstraints,
+        VertexConstraints &vertexConstraints,
+        EdgeConstraints &edgeConstraints,
         std::set<VertexState> &landmarksSet,
-        std::map<VertexState, int> &blocked
+        std::unordered_map<VertexState, int, hash_VertexState> &blocked
 ) {
     int start = map.cellToInt(a.start);
     int end = map.cellToInt(a.end);
 
-    std::map<VertexState, VertexInfo> dist;
-    std::map<VertexState, VertexState> p;
+    std::unordered_map<VertexState, VertexInfo, hash_VertexState> dist;
+    std::unordered_map<VertexState, VertexState, hash_VertexState> p;
     VertexState startState = VertexState(0, start);
     dist[startState] = VertexInfo(0, map.h(start, end));
 
@@ -716,7 +708,7 @@ AgentResult CBS::computePath(
     AgentResult res = AgentResult(path, answer);
     if ((param->ICBSOptimization != ICBS_OPTIMIZATIONS::NONE) || (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::WIDTH)) {
         BDD bdd;
-        std::set<VertexState> used;
+        std::unordered_set<VertexState, hash_VertexState> used;
         build_bdd(bdd, startState, endState, dist, p, used);
         res.bdd = bdd;
     }
@@ -727,9 +719,9 @@ void CBS::build_bdd(
         BDD &bdd,
         VertexState startState,
         VertexState vState,
-        std::map<VertexState, VertexInfo> &dist,
-        std::map<VertexState, VertexState> &p,
-        std::set<VertexState> &used
+        std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
+        std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
+        std::unordered_set<VertexState, hash_VertexState> &used
 ) {
     if (used.count(vState) > 0) return;
     used.insert(vState);

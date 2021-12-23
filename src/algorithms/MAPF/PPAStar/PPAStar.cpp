@@ -4,12 +4,13 @@
 #include <set>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 
 ScenarioResult PPAStar::run() {
     std::vector<int> prior = param->getPrior(scenario);
 
-    std::set<VertexState> vertexConstraints;
-    std::set<EdgeState> edgeConstraints;
+    VertexConstraints vertexConstraints;
+    EdgeConstraints edgeConstraints;
     std::vector<std::pair<int, int>> schedule(scenario.agents.size());
     for (int i = 0; i < scenario.agents.size(); ++i) {
         schedule[i] = std::make_pair(prior[i], i);
@@ -53,16 +54,16 @@ ScenarioResult PPAStar::run() {
 }
 
 
-AgentResult PPAStar::computePath(Agent &a, std::set<VertexState> &vertexConstraints,
-                                                     std::set<EdgeState> &edgeConstraints,
+AgentResult PPAStar::computePath(Agent &a, VertexConstraints &vertexConstraints,
+                                 EdgeConstraints &edgeConstraints,
                                                      std::unordered_map<int, int> &blockedV) {
     int start = map.cellToInt(a.start);
     int end = map.cellToInt(a.end);
     std::set<std::pair<VertexInfo, VertexState>> s;
     VertexState startState = VertexState(0, start);
     s.insert({VertexInfo(0, map.h(start, end)), startState});
-    std::map<VertexState, VertexInfo> dist;
-    std::map<VertexState, VertexState> p;
+    std::unordered_map<VertexState, VertexInfo, hash_VertexState> dist;
+    std::unordered_map<VertexState, VertexState, hash_VertexState> p;
     dist[startState] = VertexInfo(0, map.h(start, end));
     bool foundPath = false;
     VertexState endState;

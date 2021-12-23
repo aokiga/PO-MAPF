@@ -7,6 +7,8 @@
 #include "../Conflicts.h"
 #include "CBSParam.h"
 #include "TreeNode.h"
+#include <unordered_map>
+#include <unordered_set>
 
 class CBS: public MAPFAlgorithm {
 private:
@@ -16,9 +18,9 @@ private:
 
     std::vector<ScenarioResult> treeSolutions;
     std::vector<std::vector<VertexConstraints>> treeVertexConstraints;
-    std::vector<std::map<VertexState, int>> treeAllLandmarks;
+    std::vector<std::unordered_map<VertexState, int, hash_VertexState>> treeAllLandmarks;
     std::vector<std::vector<EdgeConstraints>> treeEdgeConstraints;
-    std::vector<std::vector<VertexConstraints>> treeLandmarks;
+    std::vector<std::vector<std::set<VertexState>>> treeLandmarks;
     std::vector<int> parent;
 
     std::set<TreeNode> open;
@@ -36,18 +38,18 @@ private:
 
     AgentResult computePath(
             Agent &a,
-            std::set<VertexState> &vertexConstraints,
-            std::set<EdgeState> &edgeConstraints,
+            VertexConstraints &vertexConstraints,
+            EdgeConstraints &edgeConstraints,
             std::set<VertexState> &landmarks,
-            std::map<VertexState, int> &blocked);
+            std::unordered_map<VertexState, int, hash_VertexState> &blocked);
 
     int computePathBetweenLandmarks(
             int agentNum,
-            std::set<VertexState> &vertexConstraints,
-            std::set<EdgeState> &edgeConstraints,
-            std::map<VertexState, VertexInfo> &dist,
-            std::map<VertexState, VertexState> &p,
-            std::map<VertexState, int> &blocked,
+            VertexConstraints &vertexConstraints,
+            EdgeConstraints &edgeConstraints,
+            std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
+            std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
+            std::unordered_map<VertexState, int, hash_VertexState> &blocked,
             VertexState startState,
             VertexState endState,
             int endH);
@@ -56,9 +58,9 @@ private:
             BDD &bdd,
             VertexState startState,
             VertexState vState,
-            std::map<VertexState, VertexInfo> &dist,
-            std::map<VertexState, VertexState> &p,
-            std::set<VertexState> &used);
+            std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
+            std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
+            std::unordered_set<VertexState, hash_VertexState> &used);
 
     static std::tuple<Conflicts, Conflicts, Conflicts> prioritizeConflicts(ScenarioResult &scenarioResult, Conflicts &conflicts);
 

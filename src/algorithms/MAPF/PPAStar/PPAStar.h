@@ -8,9 +8,11 @@
 #include "../MAPFParam.h"
 #include "PPAStarParam.h"
 #include "../VertexState.h"
+#include "../Constraints.h"
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 class PPAStar: public MAPFAlgorithm {
 private:
@@ -18,7 +20,7 @@ private:
     Scenario scenario;
     PPAStarParam* param;
 
-    AgentResult computePath(Agent &a, std::set<VertexState> &vertexConstraints, std::set<EdgeState> &edgeConstraints,
+    AgentResult computePath(Agent &a, VertexConstraints &vertexConstraints, EdgeConstraints &edgeConstraints,
                 std::unordered_map<int, int> &blockedV);
 public:
     ScenarioResult run() override;

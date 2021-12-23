@@ -66,19 +66,22 @@ void benchmark(ConfigurationParams *configurationParams) {
         std::cerr << "MAP GENERATED\n";
 
         std::shuffle(s.agents.begin(), s.agents.end(), gg);
+        std::cerr << s.agents.size() << '\n';
 
         for (int i = 0; i < benchmarkParams->params.size(); ++i) {
             std::cerr << "LAUNCH " << benchmarkParams->params[i]->name << "\n";
 
-            for (int ai = 0; ai < benchmarkParams->NAgents.size(); ++ai) {
-                int agentN = benchmarkParams->NAgents[ai];
-                std::cerr << agentN << " AGENTS NOW\n";
+            Scenario tmpScen;
+            for (int j = 0; j < 7; ++j) {
+                tmpScen.agents.push_back(s.agents[j]);
+                tmpScen.agents[j].i = j;
+            }
 
-                Scenario tmpScen;
-                for (int j = 0; j < agentN; ++j) {
-                    tmpScen.agents.push_back(s.agents[j]);
-                    tmpScen.agents[j].i = j;
-                }
+            for (int j = 7; j < s.agents.size(); ++j) {
+                tmpScen.agents.push_back(s.agents[j]);
+                tmpScen.agents[j].i = j;
+
+                std::cerr << j + 1 << " AGENTS NOW\n";
 
                 auto time_start = std::chrono::steady_clock::now();
                 ScenarioResult scenarioResult = launchAlgorithm(g, tmpScen, benchmarkParams->params[i],

@@ -28,7 +28,7 @@ void ResultWriter::writeBenchmarkResult(const std::string &filename, BenchmarkPa
         for (int i = 0; i < benchmarkParams->params.size(); ++i) {
             out << benchmarkParams->params[i]->name << "\n";
             for (int j = 0; j < benchmarkResult.res[t][i].size(); ++j) {
-                out << benchmarkParams->NAgents[j] << '\n';
+                out << 8 + j << '\n';
                 auto &scen = benchmarkResult.res[t][i][j];
                 out << (scen.isCorrect ? "1" : "0") << '\n';
                 if (scen.isCorrect) {
