@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <chrono>
 
 std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
 
@@ -396,10 +397,7 @@ void CBS::solveConflictDC(int node, VertexConflict &conflict) {
         }
         otherFlag = true;
     } else {
-        if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
-            v = conflict.a1;
-        }
-        if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM) {
+        if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM || param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
             if (rnd() % 2) {
                 v = conflict.a1;
             } else {
@@ -457,11 +455,7 @@ void CBS::solveConflictDC(int node, EdgeConflict &conflict) {
     Cell c2 = map.intToCell(conflict.to);
     std::cerr << conflict.time << ' ' << conflict.a1 << ' ' << conflict.a2 << " (" << c1.first << ", "  << c1.second << ") " << " (" << c2.first << ", "  << c2.second << ") " << '\n';
     */
-     if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
-        v = conflict.a1;
-        revflag = false;
-    }
-    if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM) {
+    if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM || param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
         if (rnd() % 2) {
             v = conflict.a1;
             revflag = false;
