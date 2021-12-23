@@ -77,7 +77,7 @@ void benchmark(ConfigurationParams *configurationParams) {
                 tmpScen.agents[j].i = j;
             }
 
-            for (int j = 7; j < s.agents.size(); ++j) {
+            for (int j = 7; j < 40; ++j) {
                 tmpScen.agents.push_back(s.agents[j]);
                 tmpScen.agents[j].i = j;
 

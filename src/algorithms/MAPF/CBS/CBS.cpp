@@ -207,7 +207,7 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
         for (auto &x : positionsE) {
             used.insert(x.first);
             std::pair<int, int> y = std::make_pair(x.first.second, x.first.first);
-            if (used.count(y) > 0) continue;
+            if (used.count(y) == 0) continue;
             for (int v1 : x.second) {
                 for (int v2 : positionsE[y]) {
                     EdgeConflict conflict = EdgeConflict(v1, v2, x.first.first, x.first.second, t);
