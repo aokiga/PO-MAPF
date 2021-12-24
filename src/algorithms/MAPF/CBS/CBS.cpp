@@ -22,6 +22,7 @@ ScenarioResult CBS::run() {
     treeEdgeConstraints.push_back(std::vector<EdgeConstraints>(scenario.agents.size()));
     treeLandmarks.push_back(std::vector<std::set<VertexState>>(scenario.agents.size()));
     treeAllLandmarks.push_back(std::unordered_map<VertexState, int, hash_VertexState>());
+    treeTimeEndBlocked.push_back(std::vector<std::set<int>>(scenario.agents.size()));
 
     for (int i = 0; i < scenario.agents.size(); ++i) {
         treeLandmarks[0][i].insert(std::make_pair(0, map.cellToInt(scenario.agents[i].start)));
@@ -29,7 +30,8 @@ ScenarioResult CBS::run() {
     }
 
     auto time_begin = std::chrono::steady_clock::now();
-    treeSolutions.push_back(lowLevelSearch(0));
+    std::vector<int> emptyVector = {};
+    treeSolutions.push_back(lowLevelSearch(0, emptyVector));
     parent.push_back(-1);
     if (!treeSolutions[0].isCorrect) {
         auto time_end = std::chrono::steady_clock::now();
@@ -86,6 +88,8 @@ ScenarioResult CBS::run() {
 
         auto conflicts = searchConflicts(treeSolutions[node]);
 
+        //std::cerr << "SEARCH CONFLICTS DONE\n";
+
         if (conflicts.first.empty() && conflicts.second.empty()) {
 
             auto time_end = std::chrono::steady_clock::now();
@@ -96,33 +100,35 @@ ScenarioResult CBS::run() {
         }
 
         Conflicts conflict = chooseConflict(conflicts, treeSolutions[node]);
+        //std::cerr << "CHOOSE CONFLICTS DONE\n";
 
         solveConflicts(node, conflict);
+        //std::cerr << "SOLVE CONFLICTS DONE\n";
     }
     return ScenarioResult();
 }
 
 bool CBS::isCardinalConflict(const VertexConflict &conflict, ScenarioResult &scenarioResult) {
-    bool f1 = (scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time] == 1);
-    bool f2 = (scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time] == 1);
+    bool f1 = (scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time] <= 1);
+    bool f2 = (scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time] <= 1);
     return f1 && f2;
 }
 
 bool CBS::isCardinalConflict(const EdgeConflict &conflict, ScenarioResult &scenarioResult) {
-    bool f1 = (scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time] == 1);
-    bool f2 = (scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time] == 1);
+    bool f1 = (scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time] <= 1);
+    bool f2 = (scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time] <= 1);
     return f1 && f2;
 }
 
 bool CBS::isSemiCardinalConflict(const VertexConflict &conflict, ScenarioResult &scenarioResult) {
-    bool f1 = (scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time] == 1);
-    bool f2 = (scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time] == 1);
+    bool f1 = (scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time] <= 1);
+    bool f2 = (scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time] <= 1);
     return f1 || f2;
 }
 
 bool CBS::isSemiCardinalConflict(const EdgeConflict &conflict, ScenarioResult &scenarioResult) {
-    bool f1 = (scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time] == 1);
-    bool f2 = (scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time] == 1);
+    bool f1 = (scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time] <= 1);
+    bool f2 = (scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time] <= 1);
     return f1 || f2;
 }
 
@@ -135,36 +141,30 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
     std::vector<EdgeConflict> edgeConflicts;
 
     for (int t = 0; t < maxt; ++t) {
-        std::unordered_map<int, std::vector<std::pair<int, bool>>> positionsV;
+        std::unordered_map<int, std::vector<int>> positionsV;
         for (int i = 0; i < scenarioResult.agents.size(); ++i) {
             AgentResult agent = scenarioResult.agents[i];
             int pos;
-            bool isFinish = false;
             if (t < agent.path.size()) {
                 pos = map.cellToInt(agent.path[t]);
             } else {
                 pos = map.cellToInt(agent.path.back());
-                isFinish = true;
             }
             if (param->ICBSOptimization == ICBS_OPTIMIZATIONS::NONE) { // if no ICBSOptimization -> return first conflict
                 if (!positionsV[pos].empty()) {
-                    VertexConflict conflict = VertexConflict(positionsV[pos][0].first, i, pos, t);
-                    conflict.isA1Finished = positionsV[pos][0].second;
-                    conflict.isA2Finished = isFinish;
+                    VertexConflict conflict = VertexConflict(positionsV[pos][0], i, pos, t);
                     return std::make_pair(std::vector<VertexConflict>(1, conflict), std::vector<EdgeConflict>());
                 }
             }
             if (param->ICBSOptimization == ICBS_OPTIMIZATIONS::PC && param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) { // if PC ICBSOptimization -> return first cardinal conflict
                 if (!positionsV[pos].empty()) {
-                    VertexConflict conflict = VertexConflict(positionsV[pos][0].first, i, pos, t);
-                    conflict.isA1Finished = positionsV[pos][0].second;
-                    conflict.isA2Finished = isFinish;
+                    VertexConflict conflict = VertexConflict(positionsV[pos][0], i, pos, t);
                     if (isCardinalConflict(conflict, scenarioResult)) {
                         return std::make_pair(std::vector<VertexConflict>(1, conflict), std::vector<EdgeConflict>());
                     }
                 }
             }
-            positionsV[pos].push_back({i, isFinish});
+            positionsV[pos].push_back(i);
         }
 
         std::unordered_map<std::pair<int, int>, std::vector<int>, hash_VertexState> positionsE;
@@ -196,9 +196,7 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
                 for (int p2 = p1 + 1; p2 < x.second.size(); ++p2) {
                     auto v1 = x.second[p1];
                     auto v2 = x.second[p2];
-                    VertexConflict conflict = VertexConflict(v1.first, v2.first, x.first, t);
-                    conflict.isA1Finished = v1.second;
-                    conflict.isA2Finished = v2.second;
+                    VertexConflict conflict = VertexConflict(v1, v2, x.first, t);
                     vertexConflicts.push_back(conflict);
                 }
             }
@@ -208,7 +206,7 @@ Conflicts CBS::searchConflicts(ScenarioResult &scenarioResult) {
         for (auto &x : positionsE) {
             used.insert(x.first);
             std::pair<int, int> y = std::make_pair(x.first.second, x.first.first);
-            if (used.count(y) == 0) continue;
+            if (used.count(y) > 0) continue;
             for (int v1 : x.second) {
                 for (int v2 : positionsE[y]) {
                     EdgeConflict conflict = EdgeConflict(v1, v2, x.first.first, x.first.second, t);
@@ -248,6 +246,7 @@ std::tuple<Conflicts, Conflicts, Conflicts> CBS::prioritizeConflicts(ScenarioRes
 }
 
 Conflicts CBS::chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResult &scenarioResult, int type) {
+    //std::cerr << "TYPE = " << type << '\n';
     if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
         if (!conflicts.first.empty())
             return std::make_pair(std::vector<VertexConflict>(1, conflicts.first.front()),
@@ -284,27 +283,32 @@ Conflicts CBS::chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResu
 
         int minVD = -1, minED = -1;
 
+        //std::cerr << "VERTEX CONFLICTS\n";
+
         for (VertexConflict &conflict: conflicts.first) {
             int n = std::min(
-                    (int)scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time],
-                    (int)scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time]
+                    (int) scenarioResult.agents[conflict.a1].bdd.vertexLevelCounter[conflict.time],
+                    (int) scenarioResult.agents[conflict.a2].bdd.vertexLevelCounter[conflict.time]
             );
+            //std::cerr << n << ' ';
             if (minVD == -1 || (n < minVD)) {
                 minVertexConflict = conflict;
                 minVD = n;
             }
         }
-
+        //std::cerr << "\nEDGE CONFLICTS\n";
         for (EdgeConflict &conflict: conflicts.second) {
             int n = std::min(
-                    (int)scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time],
-                    (int)scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time]
+                    (int) scenarioResult.agents[conflict.a1].bdd.edgesLevelCounter[conflict.time],
+                    (int) scenarioResult.agents[conflict.a2].bdd.edgesLevelCounter[conflict.time]
             );
+            //std::cerr << n << ' ';
             if (minED == -1 || (n < minED)) {
                 minEdgeConflict = conflict;
                 minED = n;
             }
         }
+        //std::cerr << '\n';
 
         if (minED == -1) {
             return std::make_pair(std::vector<VertexConflict>(1, minVertexConflict),
@@ -326,10 +330,7 @@ Conflicts CBS::chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResu
 
 Conflicts CBS::chooseConflict(Conflicts &conflicts, ScenarioResult &scenarioResult) {
     if (param->ICBSOptimization == ICBS_OPTIMIZATIONS::NONE) {
-        if (!conflicts.first.empty())
-            return std::make_pair(std::vector<VertexConflict>(1, conflicts.first.front()), std::vector<EdgeConflict>(0));
-        else
-            return std::make_pair(std::vector<VertexConflict>(0), std::vector<EdgeConflict>(1, conflicts.second.front()));
+        return chooseConflictWithSamePriority(conflicts, scenarioResult);
     }
     auto typesConflict = prioritizeConflicts(scenarioResult, conflicts);
     if (!std::get<0>(typesConflict).first.empty() || !std::get<0>(typesConflict).second.empty()) {
@@ -342,18 +343,23 @@ Conflicts CBS::chooseConflict(Conflicts &conflicts, ScenarioResult &scenarioResu
 }
 
 void CBS::solveConflict(int node, VertexConflict &conflict) {
-    std::vector<std::pair<int, bool>> vertexes = {std::make_pair(conflict.a1, conflict.isA1Finished),
-                                                  std::make_pair(conflict.a2, conflict.isA2Finished)};
+    std::vector<int> vertexes = { conflict.a1, conflict.a2 };
     for (auto &v: vertexes) {
-        if (v.second) continue;
         int currNode = treeVertexConstraints.size();
         treeVertexConstraints.push_back(treeVertexConstraints[node]);
         treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
         treeLandmarks.push_back(treeLandmarks[node]);
         treeAllLandmarks.push_back(treeAllLandmarks[node]);
-        treeVertexConstraints[currNode][v.first].insert({conflict.time, conflict.v});
+        treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
+        treeVertexConstraints[currNode][v].insert({conflict.time, conflict.v});
+
+        if (conflict.v == map.cellToInt(scenario.agents[v].end)) {
+            treeTimeEndBlocked[currNode][v].insert(conflict.time);
+        }
+
         parent.push_back(node);
-        treeSolutions.push_back(lowLevelSearch(currNode, v.first));
+        std::vector<int> agents = { v };
+        treeSolutions.push_back(lowLevelSearch(currNode, agents));
         if (treeSolutions[currNode].isCorrect) {
             open.insert(TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
         }
@@ -368,6 +374,7 @@ void CBS::solveConflict(int node, EdgeConflict &conflict) {
         treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
         treeLandmarks.push_back(treeLandmarks[node]);
         treeAllLandmarks.push_back(treeAllLandmarks[node]);
+        treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
         EdgeState newConstraint;
         if (!v.second) {
             newConstraint = {conflict.time, conflict.v, conflict.to};
@@ -376,73 +383,97 @@ void CBS::solveConflict(int node, EdgeConflict &conflict) {
         }
         treeEdgeConstraints[currNode][v.first].insert(newConstraint);
         parent.push_back(node);
-        treeSolutions.push_back(lowLevelSearch(currNode, v.first));
+        std::vector<int> agents = { v.first };
+        treeSolutions.push_back(lowLevelSearch(currNode, agents));
         if (treeSolutions[currNode].isCorrect) {
             open.insert(TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
         }
     }
 }
 
+int CBS::getAgentPosAtTime(AgentResult &agentResult, int time) {
+    if (agentResult.path.size() <= time) return map.cellToInt(agentResult.path.back());
+    return map.cellToInt(agentResult.path[time]);
+}
+
 void CBS::solveConflictDC(int node, VertexConflict &conflict) {
-    std::vector<std::pair<int, bool>> vertexes = {std::make_pair(conflict.a1, conflict.isA1Finished),
-                                                  std::make_pair(conflict.a2, conflict.isA2Finished)};
-    //std::cerr << "VERTEX CONFLICT!\n";
+    std::vector<int> vertexes = {conflict.a1, conflict.a2};
     int v;
-    int otherFlag = false;
-    if (conflict.isA1Finished || conflict.isA2Finished) {
-        if (conflict.isA1Finished) {
-            v = conflict.a2;
-        } else {
+
+    if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM ||
+        param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
+        if (rnd() % 2) {
             v = conflict.a1;
-        }
-        otherFlag = true;
-    } else {
-        if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::RANDOM || param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::FIRST) {
-            if (rnd() % 2) {
-                v = conflict.a1;
-            } else {
-                v = conflict.a2;
-            }
-        }
-        if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::WIDTH) {
-            int d1 = treeSolutions[node].agents[conflict.a1].bdd.vertexLevelCounter[conflict.time];
-            int d2 = treeSolutions[node].agents[conflict.a2].bdd.vertexLevelCounter[conflict.time];
-            if (d1 <= d2) {
-                v = conflict.a1;
-            } else {
-                v = conflict.a2;
-            }
+        } else {
+            v = conflict.a2;
         }
     }
+    if (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::WIDTH) {
+        //std::cerr << "TIME = " << conflict.time << '\n';
+        //std::cerr << "SUKASUKASUKA" << (int) treeSolutions[node].agents[conflict.a1].bdd.vertexLevelCounter[conflict.time] << ' ' << (int) treeSolutions[node].agents[conflict.a2].bdd.vertexLevelCounter[conflict.time] << '\n';
+
+        int d1 = treeSolutions[node].agents[conflict.a1].bdd.vertexLevelCounter[conflict.time];
+        int d2 = treeSolutions[node].agents[conflict.a2].bdd.vertexLevelCounter[conflict.time];
+        if (d1 <= d2) {
+            v = conflict.a1;
+        } else {
+            v = conflict.a2;
+        }
+    }
+
+    //std::cerr << "V = " <<v << '\n';
+
     int currNode;
     currNode = treeVertexConstraints.size();
     treeVertexConstraints.push_back(treeVertexConstraints[node]);
     treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
     treeLandmarks.push_back(treeLandmarks[node]);
     treeAllLandmarks.push_back(treeAllLandmarks[node]);
+    treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
     treeVertexConstraints[currNode][v].insert({conflict.time, conflict.v});
+
+    if (conflict.v == map.cellToInt(scenario.agents[v].end)) {
+        treeTimeEndBlocked[currNode][v].insert(conflict.time);
+    }
+
     parent.push_back(node);
-    treeSolutions.push_back(lowLevelSearch(currNode, v));
+    std::vector<int> tmpagents = { v };
+    treeSolutions.push_back(lowLevelSearch(currNode, tmpagents));
     if (treeSolutions[currNode].isCorrect) {
         open.insert(TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
     }
 
-    if (!otherFlag) {
-        currNode = treeVertexConstraints.size();
-        treeVertexConstraints.push_back(treeVertexConstraints[node]);
-        treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
-        treeLandmarks.push_back(treeLandmarks[node]);
-        treeLandmarks[currNode][v].insert({conflict.time, conflict.v});
-        treeAllLandmarks.push_back(treeAllLandmarks[node]);
-        treeAllLandmarks[currNode][{conflict.time, conflict.v}] = v;
-        parent.push_back(node);
-        treeSolutions.push_back(lowLevelSearch(currNode, v));
-        if (treeSolutions[currNode].isCorrect) {
-            open.insert(
-                    TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
-        } else {
-            //std::cerr << "SUKA\n";
+
+    if (treeAllLandmarks[node].count({conflict.time, conflict.v}) > 0) return;
+    if (treeVertexConstraints[node][v].count({conflict.time, conflict.v}) > 0) return;
+    currNode = treeVertexConstraints.size();
+    treeVertexConstraints.push_back(treeVertexConstraints[node]);
+    treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
+    treeLandmarks.push_back(treeLandmarks[node]);
+    treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
+    treeLandmarks[currNode][v].insert({conflict.time, conflict.v});
+    treeAllLandmarks.push_back(treeAllLandmarks[node]);
+    treeAllLandmarks[currNode][{conflict.time, conflict.v}] = v;
+    parent.push_back(node);
+
+    std::vector<int> agents(0);
+
+    for (int agentNum = 0; agentNum < treeSolutions[node].agents.size(); ++agentNum) {
+        if (agentNum == v) continue;
+        treeVertexConstraints[currNode][agentNum].insert({conflict.time, conflict.v});
+        int agentPosAtTime = getAgentPosAtTime(treeSolutions[node].agents[agentNum], conflict.time);
+        if (agentPosAtTime == conflict.v) {
+            if (agentPosAtTime == map.cellToInt(scenario.agents[agentNum].end)) {
+                treeTimeEndBlocked[currNode][agentNum].insert(conflict.time);
+            }
+            agents.push_back(agentNum);
         }
+    }
+
+    treeSolutions.push_back(lowLevelSearch(currNode, agents));
+    if (treeSolutions[currNode].isCorrect) {
+        open.insert(
+                TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
     }
 }
 
@@ -482,6 +513,7 @@ void CBS::solveConflictDC(int node, EdgeConflict &conflict) {
     treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
     treeLandmarks.push_back(treeLandmarks[node]);
     treeAllLandmarks.push_back(treeAllLandmarks[node]);
+    treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
     EdgeState newConstraint;
     if (!revflag) {
         newConstraint = {conflict.time, conflict.v, conflict.to};
@@ -490,15 +522,12 @@ void CBS::solveConflictDC(int node, EdgeConflict &conflict) {
     }
     treeEdgeConstraints[currNode][v].insert(newConstraint);
     parent.push_back(node);
-    treeSolutions.push_back(lowLevelSearch(currNode, v));
+    std::vector<int> tmpagents = { v };
+    treeSolutions.push_back(lowLevelSearch(currNode, tmpagents));
     if (treeSolutions[currNode].isCorrect) {
         open.insert(TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
     }
 
-    currNode = treeVertexConstraints.size();
-    treeVertexConstraints.push_back(treeVertexConstraints[node]);
-    treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
-    treeLandmarks.push_back(treeLandmarks[node]);
     int v1, v2;
     if (!revflag) {
         v1 = conflict.v;
@@ -507,17 +536,39 @@ void CBS::solveConflictDC(int node, EdgeConflict &conflict) {
         v1 = conflict.to;
         v2 = conflict.v;
     }
+
+    if (treeAllLandmarks[node].count({conflict.time, v1}) > 0) return;
+    if (treeAllLandmarks[node].count({conflict.time + 1, v2}) > 0) return;
+    if (treeVertexConstraints[node][v].count({conflict.time, v1}) > 0) return;
+    if (treeVertexConstraints[node][v].count({conflict.time + 1, v2}) > 0) return;
+
+    currNode = treeVertexConstraints.size();
+    treeVertexConstraints.push_back(treeVertexConstraints[node]);
+    treeEdgeConstraints.push_back(treeEdgeConstraints[node]);
+    treeLandmarks.push_back(treeLandmarks[node]);
+    treeTimeEndBlocked.push_back(treeTimeEndBlocked[node]);
+
     treeAllLandmarks.push_back(treeAllLandmarks[node]);
     treeAllLandmarks[currNode][{conflict.time, v1}] = v;
     treeAllLandmarks[currNode][{conflict.time + 1, v2}] = v;
     treeLandmarks[currNode][v].insert({conflict.time, v1});
     treeLandmarks[currNode][v].insert({conflict.time + 1, v2});
     parent.push_back(node);
-    treeSolutions.push_back(lowLevelSearch(currNode, v));
+
+    std::vector<int> agents(0);
+
+    for (int agentNum = 0; agentNum < treeSolutions[node].agents.size(); ++agentNum) {
+        if (agentNum == v) continue;
+        treeVertexConstraints[currNode][agentNum].insert({conflict.time, v1});
+        treeVertexConstraints[currNode][agentNum].insert({conflict.time + 1, v2});
+        int agentPosAtTimeV1 = getAgentPosAtTime(treeSolutions[node].agents[agentNum], conflict.time);
+        int agentPosAtTimeV2 = getAgentPosAtTime(treeSolutions[node].agents[agentNum], conflict.time + 1);
+        if (agentPosAtTimeV1 == v1 || agentPosAtTimeV2 == v2) agents.push_back(agentNum);
+    }
+
+    treeSolutions.push_back(lowLevelSearch(currNode, agents));
     if (treeSolutions[currNode].isCorrect) {
         open.insert(TreeNode(currNode, treeSolutions[currNode].answer, countHeuristic(treeSolutions[currNode]), node));
-    } else {
-        //std::cerr << "SUKA\n";
     }
 }
 
@@ -525,6 +576,15 @@ void CBS::solveConflicts(
         int node,
         Conflicts &conflicts
 ) {
+    /*
+    for (auto &x : conflicts.first) {
+        std::cerr << "VERTEX CONFLICT\n";
+        std::cerr << x.time << " (" << map.intToCell(x.v).first << ", " << map.intToCell(x.v).second << ")\n";
+    }
+    for (auto &x : conflicts.second) {
+        std::cerr << "EDGE CONFLICT\n";
+    }
+     */
     for (VertexConflict &conflict: conflicts.first) {
         if (param->withDS) {
             solveConflictDC(node, conflict);
@@ -545,10 +605,11 @@ void CBS::solveConflicts(
 
 ScenarioResult CBS::lowLevelSearch(
         int node,
-        int constraintAgentNum
+        std::vector<int> &constraintAgentNum
 ) {
+    //std::cerr << "LOW LEVEL SEARCH BEGIN\n";
     std::vector<AgentResult> res(scenario.agents.size());
-    if (constraintAgentNum == -1 || (param->withDS)) {             // search for all agents
+    if (constraintAgentNum.empty()) {             // search for all agents
         for (auto &x: scenario.agents) {
             int agentNum = x.i;
             AgentResult agentResult = computePath(
@@ -556,7 +617,8 @@ ScenarioResult CBS::lowLevelSearch(
                     treeVertexConstraints[node][agentNum],
                     treeEdgeConstraints[node][agentNum],
                     treeLandmarks[node][agentNum],
-                    treeAllLandmarks[node]
+                    treeAllLandmarks[node],
+                    treeTimeEndBlocked[node][agentNum]
             );
             if (!agentResult.isFound) {
                 return ScenarioResult();
@@ -572,17 +634,21 @@ ScenarioResult CBS::lowLevelSearch(
         }
     } else {                                    // search for changed agent
         res = treeSolutions[parent[node]].agents;
-        AgentResult agentResult = computePath(
-                scenario.agents[constraintAgentNum],
-                treeVertexConstraints[node][constraintAgentNum],
-                treeEdgeConstraints[node][constraintAgentNum],
-                treeLandmarks[node][constraintAgentNum],
-                treeAllLandmarks[node]
-        );
-        if (!agentResult.isFound) {
-            return ScenarioResult();
+        for (auto agentNum: constraintAgentNum) {
+            //std::cerr << agentNum << '\n';
+            AgentResult agentResult = computePath(
+                    scenario.agents[agentNum],
+                    treeVertexConstraints[node][agentNum],
+                    treeEdgeConstraints[node][agentNum],
+                    treeLandmarks[node][agentNum],
+                    treeAllLandmarks[node],
+                    treeTimeEndBlocked[node][agentNum]
+            );
+            if (!agentResult.isFound) {
+                return ScenarioResult();
+            }
+            res[agentNum] = agentResult;
         }
-        res[constraintAgentNum] = agentResult;
         /*
         for (auto &x : agentResult.path) {
             std::cerr << x.first << ' ' <<x.second << '\n';
@@ -590,6 +656,7 @@ ScenarioResult CBS::lowLevelSearch(
         std::cerr << '\n';
          */
     }
+    //std::cerr << "LOW LEVEL SEARCH END\n";
     return ScenarioResult(res);
 }
 
@@ -600,6 +667,7 @@ int CBS::computePathBetweenLandmarks(
         std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
         std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
         std::unordered_map<VertexState, int, hash_VertexState> &blocked,
+        std::set<int> &timeEndIsBlocked,
         VertexState startState,
         VertexState endState,
         int endH
@@ -612,22 +680,34 @@ int CBS::computePathBetweenLandmarks(
         s.erase(s.begin());
         VertexState vState = vx.second;
         int time = vx.second.first;
+        if (endState.first != -1 && time > endState.first) {
+            break;
+        }
         int v = vx.second.second;
         if (v == endState.second) {
-            if (endState.first == -1 || time == endState.first) {
-                timer = time;
-                break;
+            if (endState.first == -1) {
+                auto x = timeEndIsBlocked.upper_bound(time);
+                if (x == timeEndIsBlocked.end()) {
+                    timer = time;
+                    break;
+                }
+            } else {
+                if (time == endState.first) {
+                    timer = time;
+                    break;
+                }
             }
-            break;
         }
         for (auto &to : map.g[v].neighbors) {
             VertexState toState = {time + 1, to};
+            int cost = 1;
+            if (to == v && v == endH) cost = 0;
             if (vertexConstraints.count(toState) > 0) continue;
             if (edgeConstraints.count({time, v, to}) > 0) continue;
             if (blocked.count(toState) > 0 && blocked[toState] != agentNum) continue;
             if (blocked.count({time, to}) > 0 && blocked[{time, to}] != agentNum && blocked.count({time + 1, v}) > 0 && blocked[{time + 1, v}] != agentNum) continue;
-            if (dist.count(toState) == 0 || dist[toState].g > dist[vState].g + 1) {
-                VertexInfo nInfo = VertexInfo(dist[vState].g + 1, map.h(to, endH));
+            if (dist.count(toState) == 0 || dist[toState].g > dist[vState].g + cost) {
+                VertexInfo nInfo = VertexInfo(dist[vState].g + cost, map.h(to, endH));
                 s.erase({ dist[toState], toState } );
                 dist[toState] = nInfo;
                 p[toState] = vState;
@@ -643,10 +723,19 @@ AgentResult CBS::computePath(
         VertexConstraints &vertexConstraints,
         EdgeConstraints &edgeConstraints,
         std::set<VertexState> &landmarksSet,
-        std::unordered_map<VertexState, int, hash_VertexState> &blocked
+        std::unordered_map<VertexState, int, hash_VertexState> &blocked,
+        std::set<int> &timeEndIsBlocked
 ) {
     int start = map.cellToInt(a.start);
     int end = map.cellToInt(a.end);
+
+    /*
+    std::cerr << "LANDMARKS:\n";
+    for (auto x : landmarksSet) {
+        std::cerr << x.first << " (" << map.intToCell(x.second).first << ", "<< map.intToCell(x.second).second << ")\n";
+    }
+    std::cerr << '\n';
+     */
 
     std::unordered_map<VertexState, VertexInfo, hash_VertexState> dist;
     std::unordered_map<VertexState, VertexState, hash_VertexState> p;
@@ -656,6 +745,7 @@ AgentResult CBS::computePath(
     std::vector<VertexState> landmarks { landmarksSet.begin(), landmarksSet.end() };
     int timer;
     for (int i = 0; i < landmarks.size(); ++i) {
+        //std::cerr << "I = " << i << "\n";
         if (i + 1 < landmarks.size()) {
             //std::cerr << i << ' ' << landmarks[i].first << ' ' << map.intToCell(landmarks[i].second).first << ' ' << map.intToCell(landmarks[i].second).second << "\n";
             //std::cerr << i << ' ' << landmarks[i + 1].first << ' ' << map.intToCell(landmarks[i + 1].second).first << ' ' << map.intToCell(landmarks[i + 1].second).second << "\n";
@@ -666,6 +756,7 @@ AgentResult CBS::computePath(
                     dist,
                     p,
                     blocked,
+                    timeEndIsBlocked,
                     landmarks[i],
                     landmarks[i + 1],
                     end);
@@ -679,6 +770,7 @@ AgentResult CBS::computePath(
                     dist,
                     p,
                     blocked,
+                    timeEndIsBlocked,
                     landmarks[i],
                     VertexState(-1, end),
                     end);
@@ -700,34 +792,49 @@ AgentResult CBS::computePath(
     path.push_back(map.intToCell(start));
     std::reverse(path.begin(), path.end());
     AgentResult res = AgentResult(path, answer);
+    //std::cerr << "KEKAS\n";
     if ((param->ICBSOptimization != ICBS_OPTIMIZATIONS::NONE) || (param->chooseConflictStrategy == CHOOSE_CONFLICT_STRATEGY::WIDTH)) {
-        BDD bdd;
+        MDD mdd;
         std::unordered_set<VertexState, hash_VertexState> used;
-        build_bdd(bdd, startState, endState, dist, p, used);
-        res.bdd = bdd;
+        build_mdd(mdd, startState, endState, dist, p, used, end);
+        res.bdd = mdd;
+        /*
+        std::cerr << "MDD\n";
+        for (auto x : res.bdd.vertexLevelCounter) {
+            std::cerr << x.first << ' ' << x.second << '\n';
+        }
+        std::cerr << '\n';
+         */
     }
-    return AgentResult(path, answer);
+    //std::cerr << '\n';
+    //std::cerr << "MEMAS\n";
+    return res;
 }
 
-void CBS::build_bdd(
-        BDD &bdd,
+void CBS::build_mdd(
+        MDD &mdd,
         VertexState startState,
         VertexState vState,
         std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
         std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
-        std::unordered_set<VertexState, hash_VertexState> &used
+        std::unordered_set<VertexState, hash_VertexState> &used,
+        int end
 ) {
     if (used.count(vState) > 0) return;
     used.insert(vState);
-    bdd.vertexLevelCounter[vState.first]++;
+    //std::cerr << vState.first << " (" << map.intToCell(vState.second).first << ", " << map.intToCell(vState.second).second << ")" << '\n';
+    mdd.vertexLevelCounter[vState.first]++;
     if (vState == startState) {
         return;
     }
     for (auto &to : map.g[vState.second].neighbors) {
+        int cost = 1;
+        if (vState.second == end && to == vState.second) cost = 0;
         VertexState toState = { vState.first - 1, to };
         if (dist.count(toState) == 0) continue;
-        bdd.edgesLevelCounter[toState.first]++;
-        build_bdd(bdd, startState, toState, dist, p, used);
+        if (dist[toState].g > dist[vState].g + cost) continue;
+        mdd.edgesLevelCounter[toState.first]++;
+        build_mdd(mdd, startState, toState, dist, p, used, end);
     }
 }
 

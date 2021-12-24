@@ -6,8 +6,6 @@
 class VertexConflict {
 public:
     int a1, a2, v, time;
-    bool isA1Finished;
-    bool isA2Finished;
     VertexConflict() = default;
     VertexConflict(int _a1, int _a2, int _v, int _time) : a1(_a1), a2(_a2), v(_v), time(_time) {}
 };

@@ -21,13 +21,14 @@ private:
     std::vector<std::unordered_map<VertexState, int, hash_VertexState>> treeAllLandmarks;
     std::vector<std::vector<EdgeConstraints>> treeEdgeConstraints;
     std::vector<std::vector<std::set<VertexState>>> treeLandmarks;
+    std::vector<std::vector<std::set<int>>> treeTimeEndBlocked;
     std::vector<int> parent;
 
     std::set<TreeNode> open;
 
     ScenarioResult lowLevelSearch(
             int node,
-            int constraintAgentNum = -1
+            std::vector<int> &constraintAgentNum
     );
 
     void solveConflicts(
@@ -41,7 +42,8 @@ private:
             VertexConstraints &vertexConstraints,
             EdgeConstraints &edgeConstraints,
             std::set<VertexState> &landmarks,
-            std::unordered_map<VertexState, int, hash_VertexState> &blocked);
+            std::unordered_map<VertexState, int, hash_VertexState> &blocked,
+            std::set<int> &timeEndIsBlocked);
 
     int computePathBetweenLandmarks(
             int agentNum,
@@ -50,17 +52,18 @@ private:
             std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
             std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
             std::unordered_map<VertexState, int, hash_VertexState> &blocked,
+            std::set<int> &timeEndIsBlocked,
             VertexState startState,
             VertexState endState,
             int endH);
 
-    void build_bdd(
-            BDD &bdd,
+    void build_mdd(
+            MDD &mdd,
             VertexState startState,
             VertexState vState,
             std::unordered_map<VertexState, VertexInfo, hash_VertexState> &dist,
             std::unordered_map<VertexState, VertexState, hash_VertexState> &p,
-            std::unordered_set<VertexState, hash_VertexState> &used);
+            std::unordered_set<VertexState, hash_VertexState> &used, int end);
 
     static std::tuple<Conflicts, Conflicts, Conflicts> prioritizeConflicts(ScenarioResult &scenarioResult, Conflicts &conflicts);
 
@@ -79,6 +82,9 @@ private:
 
     Conflicts chooseConflict(Conflicts &conflicts, ScenarioResult &scenarioResult);
     Conflicts chooseConflictWithSamePriority(Conflicts &conflicts, ScenarioResult &scenarioResult, int type = 2);
+
+
+    int getAgentPosAtTime(AgentResult &agentResult, int time);
 public:
     ScenarioResult run() override;
 

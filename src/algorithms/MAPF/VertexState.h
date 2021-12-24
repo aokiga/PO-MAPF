@@ -6,13 +6,18 @@
 typedef std::pair<int, int> VertexState;
 typedef std::tuple<int, int, int> EdgeState;
 
+inline size_t hash_combine( size_t lhs, size_t rhs ) {
+    lhs ^= rhs + 0x9e3779b9 + (lhs << 6) + (lhs >> 2);
+    return lhs;
+}
+
 struct hash_VertexState {
     template <class T1, class T2>
     size_t operator()(const std::pair<T1, T2>& p) const
     {
         auto hash1 = std::hash<T1>{}(p.first);
         auto hash2 = std::hash<T2>{}(p.second);
-        return 239 * hash1 + hash2;
+        return hash_combine(hash1, hash2);
     }
 };
 
@@ -23,7 +28,7 @@ struct hash_EdgeState {
         auto hash1 = std::hash<T1>{}(std::get<0>(p));
         auto hash2 = std::hash<T2>{}(std::get<1>(p));
         auto hash3 = std::hash<T3>{}(std::get<2>(p));
-        return 239 * 239 * hash1 + 239 * hash2 + hash3;
+        return hash_combine(hash1, hash_combine(hash2, hash3));
     }
 };
 
