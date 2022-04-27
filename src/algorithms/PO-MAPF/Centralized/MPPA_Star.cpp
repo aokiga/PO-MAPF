@@ -335,6 +335,20 @@ ScenarioResult MPPA_Star::run() {
     int finished = 0;
 
     while (true) {
+        if (checkTimeLimit(time_begin)) {
+            ScenarioResult sres = ScenarioResult();
+            sres.isCorrect = false;
+            sres.CTNodes = 0;
+            for (int i = 0; i < n; ++i) {
+                if (curpos[i] == scenario.agents[i].end) {
+                    sres.CTNodes++;
+                    sres.isCorrect = true;
+                }
+            }
+            std::cerr << sres.CTNodes << '\n';
+            return sres;
+        }
+
         //for (auto x : needReplanning) {
         //    std::cerr << x << ' ';
         //}
@@ -354,7 +368,19 @@ ScenarioResult MPPA_Star::run() {
         }
 
         for (auto x : schedule) {
-
+            if (checkTimeLimit(time_begin)) {
+                ScenarioResult sres = ScenarioResult();
+                sres.isCorrect = false;
+                sres.CTNodes = 0;
+                for (int i = 0; i < n; ++i) {
+                    if (curpos[i] == scenario.agents[i].end) {
+                        sres.CTNodes++;
+                        sres.isCorrect = true;
+                    }
+                }
+                std::cerr << sres.CTNodes << '\n';
+                return sres;
+            }
             int agentNum = x.second;
             //std::cerr << agentNum << '\n';
 
@@ -418,6 +444,20 @@ ScenarioResult MPPA_Star::run() {
         bool finishFlag;
 
         while (true) {
+
+            if (checkTimeLimit(time_begin)) {
+                ScenarioResult sres = ScenarioResult();
+                sres.isCorrect = false;
+                sres.CTNodes = 0;
+                for (int i = 0; i < n; ++i) {
+                    if (curpos[i] == scenario.agents[i].end) {
+                        sres.CTNodes++;
+                        sres.isCorrect = true;
+                    }
+                }
+                std::cerr << sres.CTNodes << '\n';
+                return sres;
+            }
 
             finishFlag = true;
 
@@ -705,5 +745,5 @@ void MPPA_Star::registerNewVisibleCells(int agentNum, std::set<int> &cells) {
 bool MPPA_Star::checkTimeLimit(double timeBegin) const {
     auto currtime = (double)clock();
     double runtime = (currtime - timeBegin) / CLOCKS_PER_SEC;
-    return runtime > timeLimit;
+    return runtime > 30
 }
