@@ -11,7 +11,7 @@ std::mt19937 gg(std::chrono::steady_clock::now().time_since_epoch().count());
 Cell generateFreeCell(const Map &m, std::unordered_set<int> &used) {
     while (true) {
         int v = std::abs(int(gg())) % m.size;
-        if (m.g[v].isBlocked) continue;
+        if (m.g[v].isObstacle) continue;
         if (used.count(v)) continue;
         used.insert(v);
         return m.intToCell(v);

@@ -1,0 +1,4 @@
+"/Users/Gleb.Oborin/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/213.6461.75/CLion.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /Users/Gleb.Oborin/CLionProjects/PO_MAPF
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release

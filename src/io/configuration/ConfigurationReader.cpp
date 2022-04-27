@@ -3,6 +3,8 @@
 #include "../../algorithms/MAPF/CBS/CBSParam.h"
 #include "algorithms/CBS/CBSParamReader.h"
 #include "../../configuration/BenchmarkParams.h"
+#include "../../algorithms/PO-MAPF/Centralized/MPPAStarParam.h"
+#include "algorithms/MPPAStar/MPPAStarParamReader.h"
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -41,8 +43,8 @@ LaunchParams ConfigurationReader::readLaunchParams(std::ifstream &in) {
             in >> res.scenFileName;
             continue;
         }
-        if (tmp == "TIME_LIMIT") {
-            in >> res.timeLimit;
+        if (tmp == "MOVE_LIMIT") {
+            in >> res.moveLimit;
             continue;
         }
         if (tmp == "TMP_PATH") {
@@ -58,6 +60,10 @@ LaunchParams ConfigurationReader::readLaunchParams(std::ifstream &in) {
             }
             if (name == "PPAStar") {
                 res.param = new PPAStarParam(PPAStarParamReader::readParam(in));
+                continue;
+            }
+            if (name == "MPPAStar") {
+                res.param = new MPPAStarParam(MPPAStarParamReader::readParam(in));
                 continue;
             }
         }
@@ -83,8 +89,8 @@ BenchmarkParams ConfigurationReader::readBenchmarkParams(std::ifstream &in) {
             in >> res.scenFileName;
             continue;
         }
-        if (tmp == "TIME_LIMIT") {
-            in >> res.timeLimit;
+        if (tmp == "MOVE_LIMIT") {
+            in >> res.moveLimit;
             continue;
         }
         if (tmp == "TMP_PATH") {
@@ -93,6 +99,10 @@ BenchmarkParams ConfigurationReader::readBenchmarkParams(std::ifstream &in) {
         }
         if (tmp == "NLAUNCH") {
             in >> res.NLaunch;
+            continue;
+        }
+        if (tmp == "MAX_AGENT_NUM") {
+            in >> res.NMaxAgents;
             continue;
         }
         if (tmp == "NAGENTS") {
@@ -108,6 +118,10 @@ BenchmarkParams ConfigurationReader::readBenchmarkParams(std::ifstream &in) {
             }
             continue;
         }
+        if (tmp == "ADD_AGENTS") {
+            in >> res.addAgents;
+            continue;
+        }
         if (tmp == "ALGORITHM") {
             std::string name;
             in >> name;
@@ -117,6 +131,10 @@ BenchmarkParams ConfigurationReader::readBenchmarkParams(std::ifstream &in) {
             }
             if (name == "PPAStar") {
                 res.params.push_back(new PPAStarParam(PPAStarParamReader::readParam(in)));
+                continue;
+            }
+            if (name == "MPPAStar") {
+                res.params.push_back(new MPPAStarParam(MPPAStarParamReader::readParam(in)));
                 continue;
             }
         }

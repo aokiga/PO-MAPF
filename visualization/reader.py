@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 
 from agent import Agent
@@ -17,7 +19,16 @@ def read_res(file_name):
             for j in range(m):
                 x, y = list(map(int, f.readline().strip().split()))
                 path[j] = (x, y)
-            res[i] = AgentRes(i, answer, path)
+            T = int(f.readline().strip())
+            new_visible = []
+            for t in range(T):
+                m = int(f.readline().strip())
+                nc = np.empty(m, dtype=np.dtype('int, int'))
+                for j in range(m):
+                    x, y = list(map(int, f.readline().strip().split()))
+                    nc[j] = (x, y)
+                new_visible.append(nc)
+            res[i] = AgentRes(i, answer, path, new_visible)
     return res
 
 
@@ -61,24 +72,65 @@ def read_benchmark_tmp(file_name):
     return z
 
 
-def read_benchmark(file_name):
-    x = Benchmark()
+def read_benchmark(file_name, algoNum):
+    success = []
+    ans = []
+    nodes = []
+    time = []
     with open(file_name, 'r') as f:
-        NAGENTS = int(f.readline().strip())
         NLAUNCH = int(f.readline().strip())
-        NALGO = int(f.readline().strip())
-        for i in range(NAGENTS):
-            agentNum = int(f.readline().split()[1])
-            x.agentNums.append(agentNum)
-            for j in range(NLAUNCH):
-                for k in range(NALGO):
-                    name, correct = f.readline().split()
-                    x.correct[name].append((agentNum, correct))
-                    if correct:
-                        answer = int(f.readline().split()[1])
-                        x.answer[name].append((agentNum, answer))
-                        runtime = float(f.readline().split()[1])
-                        x.runtime[name].append((agentNum, runtime))
-                        ctnodes = int(f.readline().split()[1])
-                        x.ctnodes[name].append((agentNum, ctnodes))
-    return x
+        for nlaunch in range(NLAUNCH):
+            num = int(f.readline().strip())
+            print(num)
+            tmp = []
+            for algoN in range(algoNum):
+                algo = f.readline().strip()
+                print(algo)
+                algores = []
+                while True:
+                    nagents = int(f.readline().strip())
+                    flag = int(f.readline().strip())
+                    if flag == 0:
+                        break
+                    answer = int(f.readline().strip().split()[1])
+                    runtime = float(f.readline().strip().split()[1])
+                    ctnodes = int(f.readline().strip().split()[1])
+                    algores.append((nagents, answer, runtime, ctnodes))
+                tmp.append((algo, algores))
+            tmpsucc = list(map(lambda xx: (xx[0], list(map(lambda yy: yy[0], xx[1]))), tmp))
+            minn = min(map(lambda xx: len(xx[1]), tmp))
+            x = list(map(lambda xx: (xx[0], xx[1][:minn]), tmp))
+            tmpans = list(map(lambda xx: (xx[0], list(map(lambda yy: (yy[0], yy[1]), xx[1]))), x))
+            tmptime = list(map(lambda xx: (xx[0], list(map(lambda yy: (yy[0], yy[2]), xx[1]))), x))
+            tmpctnodes = list(map(lambda xx: (xx[0], list(map(lambda yy: (yy[0], yy[3]), xx[1]))), x))
+            success.append(dict(tmpsucc))
+            ans.append(dict(tmpans))
+            nodes.append(dict(tmpctnodes))
+            time.append(dict(tmptime))
+    algos = success[0].keys()
+    s = []
+    a = []
+    n = []
+    t = []
+    for algo in algos:
+        tmpans = defaultdict(list)
+        tmpsucc = defaultdict(int)
+        tmptime = defaultdict(list)
+        tmpnodes = defaultdict(list)
+        for launch in range(NLAUNCH):
+            for nagents, nodess in nodes[launch][algo]:
+                tmpsucc[nagents] += 1 if (nodess == nagents) else 0
+            #for nagents in success[launch][algo]:
+            #    tmpsucc[nagents] += 1
+            for nagents, answerr in ans[launch][algo]:
+                tmpans[nagents].append(answerr)
+            for nagents, nodess in nodes[launch][algo]:
+                tmpnodes[nagents].append(nodess / nagents)
+            for nagents, timme in time[launch][algo]:
+                tmptime[nagents].append(timme)
+        s.append((algo, tmpsucc))
+        a.append((algo, tmpans))
+        t.append((algo, tmptime))
+        n.append((algo, tmpnodes))
+
+    return dict(s), dict(a), dict(n), dict(t), NLAUNCH

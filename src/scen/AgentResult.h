@@ -10,6 +10,7 @@ public:
     bool isFound { false };
     int answer { 0 };
     std::vector<Cell> path { std::vector<Cell>(0) };
+    std::vector<std::vector<Cell>> newVisible;
 
     AgentResult() = default;
     explicit AgentResult(std::vector<Cell> &_path, int answer) : isFound(true), path(_path), answer(answer) {}

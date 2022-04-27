@@ -6,7 +6,7 @@ public:
     virtual std::string getType() = 0;
     std::string mapFileName {};
     std::string pathToData {};
-    double timeLimit = 0;
+    int moveLimit = 10000;
     std::string scenFileName = "";
 };
 

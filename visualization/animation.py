@@ -44,14 +44,3 @@ def animate_list(lst, play=False, navigation=True, interval=200):
     return interact(step_slice,
                     lst=fixed(lst),
                     step=slider)
-
-
-def step_dict(dct, key):
-    return animate_list(dct[key]);
-
-
-def animate_dict(dct, description=None):
-    return interact(step_dict,
-                    dct=fixed(dct),
-                    key=widgets.Select(options=dct.keys(),
-                                       description=description));

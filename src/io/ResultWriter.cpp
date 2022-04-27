@@ -16,6 +16,13 @@ void ResultWriter::writeScenarioResult(const std::string &filename, ScenarioResu
         for (auto &cell : scenarioResult.agents[i].path) {
             out << cell.first << ' ' << cell.second << '\n';
         }
+        out << scenarioResult.agents[i].newVisible.size() << '\n';
+        for (auto &j : scenarioResult.agents[i].newVisible) {
+            out << j.size() << '\n';
+            for (auto &cell : j) {
+                out << cell.first << ' ' << cell.second << '\n';
+            }
+        }
     }
     out.close();
 }
@@ -28,7 +35,7 @@ void ResultWriter::writeBenchmarkResult(const std::string &filename, BenchmarkPa
         for (int i = 0; i < benchmarkParams->params.size(); ++i) {
             out << benchmarkParams->params[i]->name << "\n";
             for (int j = 0; j < benchmarkResult.res[t][i].size(); ++j) {
-                out << 8 + j << '\n';
+                out << j + 1 << '\n';
                 auto &scen = benchmarkResult.res[t][i][j];
                 out << (scen.isCorrect ? "1" : "0") << '\n';
                 if (scen.isCorrect) {

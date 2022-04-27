@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="PO_MAPF"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="PO_MAPF">
+				<Option output="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/PO_MAPF" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 PO_MAPF"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="PO_MAPF/fast">
+				<Option output="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/PO_MAPF" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 PO_MAPF/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/Gleb.Oborin/CLionProjects/PO_MAPF/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/main.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/CBS.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/CBS.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/CBSParam.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/CGHeuristic.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/CGHeuristic.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/MDD.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/TreeNode.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/CBS/TreeNode.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/Conflicts.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/Constraints.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/MAPFAlgorithm.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/MAPFParam.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/PPAStar/PPAStar.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/PPAStar/PPAStar.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/PPAStar/PPAStarParam.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/PPAStar/PPAStarParam.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/VertexState.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/MAPF/VertexState.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/PO-MAPF/Centralized/MPPAStarParam.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/PO-MAPF/Centralized/MPPAStarParam.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/PO-MAPF/Centralized/MPPA_Star.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/algorithms/PO-MAPF/Centralized/MPPA_Star.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/configuration/BenchmarkParams.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/configuration/ConfigurationParams.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/configuration/LaunchParams.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/MapReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/MapReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/ResultWriter.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/ResultWriter.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/ScenReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/ScenReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/ConfigurationReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/ConfigurationReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/CBS/CBSParamReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/CBS/CBSParamReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/MPPAStar/MPPAStarParamReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/MPPAStar/MPPAStarParamReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/PPAStar/PPAStarParamReader.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/io/configuration/algorithms/PPAStar/PPAStarParamReader.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/Graph.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/Map.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/Map.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/Node.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/Node.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/POMAP.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/POMap.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/map/POMap.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/Agent.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/AgentResult.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/BenchmarkResult.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/Scenario.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/ScenarioGenerator.cpp">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/ScenarioGenerator.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/src/scen/ScenarioResult.h">
+			<Option target="PO_MAPF"/>
+		</Unit>
+		<Unit filename="/Users/Gleb.Oborin/CLionProjects/PO_MAPF/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -10,7 +10,7 @@ public:
     int size;
     std::vector<Node> g;
 
-    std::vector<int> get_neighbors(int v);
+    virtual std::vector<int> get_neighbors(int v) = 0;
 };
 
 

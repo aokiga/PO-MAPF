@@ -10,7 +10,7 @@ by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
 names = [name for hsv, name in by_hsv if name not in {'black', 'k', 'w', 'white', 'crimson', 'royalblue', 'limegreen', 'yellow', 'orange'}]
 
 random.shuffle(names)
-names = ['white', 'black', 'crimson', 'royalblue', 'limegreen', 'yellow', 'orange', *names, 'red']
+names = ['white', 'black', 'grey', 'crimson', 'royalblue', 'limegreen', 'yellow', 'orange', *names, 'red']
 
 
 def fill_background(i, j, ax, cell, n):
@@ -45,18 +45,20 @@ def fill_robots(i, j, ax, cell, n):
         ax.add_patch(circle)
 
 
-def fill(filling, n, ax, f):
+def fill(filling, n, ax, fs):
     for i, row in enumerate(filling):
         i = n - i - 1
         for j, cell in enumerate(row):
-            f(j, i, ax, cell, n)
+            for f in fs:
+                f(j, i, ax, cell, n)
 
 
-def draw_filling(filling, horizonal_scale=0.75, vertical_scale=0.75):
+
+def draw_filling(filling, horizonal_scale=0.5, vertical_scale=0.5):
     if filling is not None:
         n = len(filling)
         m = len(filling[0])
-        fig = plt.figure(figsize=(min(m, 10), min(n, 10)))#m * vertical_scale, n * horizonal_scale))
+        fig = plt.figure(figsize=(min(m * vertical_scale, 5), min(n * horizonal_scale, 5)))#m * vertical_scale, n * horizonal_scale))
 
         ax = fig.add_axes([0, 0, 1, 1])
         ax.get_xaxis().set_visible(False)
@@ -66,9 +68,7 @@ def draw_filling(filling, horizonal_scale=0.75, vertical_scale=0.75):
             spine.set_visible(False)
             spine.set_visible(False)
 
-        fill(filling, n, ax, fill_background)
-        fill(filling, n, ax, fill_path)
-        fill(filling, n, ax, fill_robots)
+        fill(filling, n, ax, [fill_background, fill_path, fill_robots])
 
         for i in range(n + 1):
             ax.plot([0, m], [i, i], color='black')

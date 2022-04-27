@@ -13,6 +13,8 @@ public:
     }
 
     int NLaunch { 0 };
+    int NMaxAgents { 0 };
+    int addAgents { 1 };
     std::vector<int> NAgents = std::vector<int>();
 
     std::vector<MAPFParam*> params = std::vector<MAPFParam*>();

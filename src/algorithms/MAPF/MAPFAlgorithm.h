@@ -8,7 +8,7 @@
 
 class MAPFAlgorithm {
 public:
-    virtual ScenarioResult run() = 0; // TODO(Change MAP to GRAPH)
+    virtual ScenarioResult run() = 0;
     double timeLimit;
 };
 
