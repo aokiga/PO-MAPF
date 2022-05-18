@@ -13,7 +13,7 @@ class MPPA_Star: public MAPFAlgorithm {
 private:
     MPPAStarParam* param;
     Scenario scenario;
-    std::vector<Cell> curpos;
+    std::vector<Cell> curpos, prevcurpos;
     std::vector<POMap> map;
     std::vector<std::vector<std::vector<Cell>>> newVisible;
 
@@ -24,13 +24,14 @@ private:
     static std::vector<std::vector<int>> buildGraphClosure(std::vector<std::vector<int>> &graph);
     void registerNewVisibleCells(int agentNum, std::set<int> &cells);
 
-    std::vector<std::vector<int>> lastSeen;
+    std::vector<std::vector<int>> lastSeen, prevlastSeen;
 
     AgentResult computePathForAgent(Agent &a, VertexConstraints &vertexConstraints, EdgeConstraints &edgeConstraints, Cell startCell);
 
     bool checkTimeLimit(double timeBegin) const;
 
     void predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec);
+    void predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec);
 
     void countMoves(
             int agentNum,
@@ -47,8 +48,10 @@ public:
         int n = scenario.agents.size();
 
         lastSeen.assign(n, std::vector<int>(n, -1));
+        prevlastSeen.assign(n, std::vector<int>(n, -1));
         map.assign(n, POMap(g));
         curpos.resize(n);
+        prevcurpos.resize(n);
         newVisible.resize(n);
     }
 

@@ -5,6 +5,8 @@
 #include <random>
 #include <chrono>
 
+std::mt19937 gg(std::chrono::steady_clock::now().time_since_epoch().count());
+
 AgentResult MPPA_Star::computePathForAgent(
         Agent &a,
         VertexConstraints &vertexConstraints,
@@ -78,21 +80,28 @@ void predictCellsAgentStrategy(int agentPos, int otherAgentPos, VertexConstraint
     ec.insert(std::make_tuple(0, agentPos, otherAgentPos));
 }
 
-void predictCellsSquareStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec) {
+void predictCellsSquareStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec,  bool isPlus = false) {
     predictCellsAgentStrategy(agentPos, otherAgentPos, vc, ec);
     std::vector<int> neighbors = map.get_neighbors(otherAgentPos);
+    if (neighbors.empty()) return;
+    if (isPlus) {
+        int ind = std::abs(int(gg())) % neighbors.size();
+        vc.insert(std::make_pair(1, neighbors[ind]));
+        ec.insert(std::make_tuple(0, agentPos, neighbors[ind]));
+    }
     for (auto v : neighbors) {
         vc.insert(std::make_pair(1, v));
         ec.insert(std::make_tuple(0, agentPos, v));
     }
 }
 
-void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec) {
+void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec, bool isPlus = false) {
     predictCellsAgentStrategy(agentPos, otherAgentPos, vc, ec);
     Cell agentCell = map.intToCell(agentPos);
     Cell otherAgentCell = map.intToCell(otherAgentPos);
     int dx = agentCell.first - otherAgentCell.first;
     int dy = agentCell.second - otherAgentCell.second;
+    std::vector<int> buf;
     if (dx != 0) {
         Cell nc = otherAgentCell;
         if (dx > 0) {
@@ -101,8 +110,7 @@ void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, V
             nc.first--;
         }
         int nv = map.cellToInt(nc);
-        vc.insert(std::make_pair(1, nv));
-        ec.insert(std::make_tuple(0, agentPos, nv));
+        buf.push_back(nv);
     }
     if (dy != 0) {
         Cell nc = otherAgentCell;
@@ -112,9 +120,39 @@ void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, V
             nc.second--;
         }
         int nv = map.cellToInt(nc);
+        buf.push_back(nv);
+    }
+    if (buf.empty()) return;
+    if (isPlus) {
+        int ind = std::abs(int(gg())) % buf.size();
+        vc.insert(std::make_pair(1, buf[ind]));
+        ec.insert(std::make_tuple(0, agentPos, buf[ind]));
+        return;
+    }
+    for (auto nv : buf) {
         vc.insert(std::make_pair(1, nv));
         ec.insert(std::make_tuple(0, agentPos, nv));
     }
+}
+
+void MPPA_Star::predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec) {
+    int curv = map[agentNum].cellToInt(curpos[agentNum]);
+    if (prevlastSeen[agentNum][otherAgentNum] + 1 == lastSeen[agentNum][otherAgentNum]) {
+        if (prevcurpos[otherAgentNum] != curpos[otherAgentNum]) {
+            int dx = curpos[otherAgentNum].first - prevcurpos[otherAgentNum].first;
+            int dy = curpos[otherAgentNum].second - prevcurpos[otherAgentNum].second;
+            if (dx != 0 || dy != 0) {
+                Cell nc = Cell(curpos[otherAgentNum].first + dx, curpos[otherAgentNum].second + dy);
+                int nv = map[agentNum].cellToInt(nc);
+                if (map[agentNum].is_correct(nv)) {
+                    vc.insert(std::make_pair(1, nv));
+                    ec.insert(std::make_tuple(0, curv, nv));
+                    return;
+                }
+            }
+        }
+    }
+    predictCellsPositionStrategy(agentNum, otherAgentNum, map[agentNum], vc, ec, true);
 }
 
 void MPPA_Star::predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec) {
@@ -129,6 +167,15 @@ void MPPA_Star::predictCells(int agentNum, int otherAgentNum, VertexConstraints 
             break;
         case (NoPathStrategy::POSITION):
             predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec);
+            break;
+        case (NoPathStrategy::SQUARE_P):
+            predictCellsSquareStrategy(curv, curt, map[agentNum], vc, ec, true);
+            break;
+        case (NoPathStrategy::POSITION_P):
+            predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec, true);
+            break;
+        case (NoPathStrategy::MOVEMENT):
+            predictCellsMovementStrategy(agentNum, otherAgentNum, vc, ec);
             break;
     }
 }
@@ -173,7 +220,7 @@ void MPPA_Star::countMoves(
         if (dist == newDist) waitMove.push_back(v);
         if (dist < newDist) backMove.push_back(v);
     }
-    printMoves(bestMove, waitMove, backMove, map[agentNum]);
+    //printMoves(bestMove, waitMove, backMove, map[agentNum]);
 }
 
 int chooseNextMoveRandom(
@@ -275,8 +322,6 @@ void markBadDfs(int v, std::map<int, std::vector<std::pair<int, int>>> &g, std::
 }
 
 ScenarioResult MPPA_Star::run() {
-    std::mt19937 gg(std::chrono::steady_clock::now().time_since_epoch().count());
-
     //printAgentsInfo(scenario.agents);
 
     std::vector<int> prior = param->getPrior(scenario);
@@ -293,6 +338,9 @@ ScenarioResult MPPA_Star::run() {
 
     int n = (int)scenario.agents.size();
 
+    curpos.resize(n);
+    prevcurpos.resize(n);
+
     for (int i = 0; i < n; ++i) {
         int start = map[i].cellToInt(scenario.agents[i].start);
         auto cc = map[i].make_visible(start, param->visionRadius);
@@ -306,6 +354,7 @@ ScenarioResult MPPA_Star::run() {
 
     for (int i = 0; i < n; ++i) {
         curpos[i] = scenario.agents[i].start;
+        prevcurpos[i] = curpos[i];
         paths[i].push_back(curpos[i]);
     }
 
@@ -464,6 +513,8 @@ ScenarioResult MPPA_Star::run() {
             std::map<std::pair<int, int>, int> ss;
             std::map<int, std::vector<std::pair<int, int>>> rg;
             std::vector<Cell> nextpos(n);
+            prevcurpos = curpos;
+            prevlastSeen = lastSeen;
 
             std::set<int> bad = {};
 
@@ -745,5 +796,5 @@ void MPPA_Star::registerNewVisibleCells(int agentNum, std::set<int> &cells) {
 bool MPPA_Star::checkTimeLimit(double timeBegin) const {
     auto currtime = (double)clock();
     double runtime = (currtime - timeBegin) / CLOCKS_PER_SEC;
-    return runtime > 30
+    return runtime > 20;
 }

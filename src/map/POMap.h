@@ -33,6 +33,8 @@ public:
     std::vector<int> get_neighbors(int v) override;
 
     std::vector<int> make_visible(int v, int radius);
+
+    bool is_correct(int v);
 };
 
 

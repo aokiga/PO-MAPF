@@ -33,6 +33,13 @@ std::vector<int> POMap::get_neighbors(int v) {
     return neighbors;
 }
 
+bool POMap::is_correct(int v) {
+    auto c = this->intToCell(v);
+    int ni = c.first;
+    int nj = c.second;
+    return !(ni < 0 || nj < 0 || ni >= height || nj >= width);
+}
+
 std::vector<int> POMap::make_visible(int v, int radius) {
     auto c = this->intToCell(v);
     isVisible.clear();

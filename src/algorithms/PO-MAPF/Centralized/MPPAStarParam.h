@@ -23,7 +23,9 @@ enum class NoPathStrategy {
     AGENT,
     SQUARE,
     POSITION,
-   //MOVEMENT TODO()
+    SQUARE_P,
+    POSITION_P,
+    MOVEMENT,
 };
 
 class MPPAStarParam: public MAPFParam {

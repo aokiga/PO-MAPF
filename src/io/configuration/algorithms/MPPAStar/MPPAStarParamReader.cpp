@@ -103,6 +103,18 @@ MPPAStarParam MPPAStarParamReader::readParam(std::ifstream &in) {
                 res.noPathStrategy = NoPathStrategy::POSITION;
                 continue;
             }
+            if (prior == "SQUARE+") {
+                res.noPathStrategy = NoPathStrategy::SQUARE_P;
+                continue;
+            }
+            if (prior == "POSITION+") {
+                res.noPathStrategy = NoPathStrategy::POSITION_P;
+                continue;
+            }
+            if (prior == "MOVEMENT") {
+                res.noPathStrategy = NoPathStrategy::MOVEMENT;
+                continue;
+            }
         }
 
         if (tmp == "RADIUS") {

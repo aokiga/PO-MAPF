@@ -102,7 +102,7 @@ void benchmark(ConfigurationParams *configurationParams) {
 
                 result.res[t][i].push_back(scenarioResult);
 
-                if (j + 1 == benchmarkParams->NMaxAgents) {
+                if (j + benchmarkParams->addAgents >= benchmarkParams->NMaxAgents) {
                     result.res[t][i].push_back(ScenarioResult());
                 }
 

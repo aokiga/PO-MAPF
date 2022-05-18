@@ -30,6 +30,7 @@ void ResultWriter::writeScenarioResult(const std::string &filename, ScenarioResu
 void ResultWriter::writeBenchmarkResult(const std::string &filename, BenchmarkParams *benchmarkParams, BenchmarkResult &benchmarkResult) {
     std::ofstream out(filename);
     out << benchmarkParams->NLaunch << '\n';
+    out << benchmarkParams->addAgents << '\n';
     for (int t = 0; t < benchmarkParams->NLaunch; ++t) {
         out << t << "\n";
         for (int i = 0; i < benchmarkParams->params.size(); ++i) {

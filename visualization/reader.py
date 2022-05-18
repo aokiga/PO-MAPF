@@ -79,6 +79,7 @@ def read_benchmark(file_name, algoNum):
     time = []
     with open(file_name, 'r') as f:
         NLAUNCH = int(f.readline().strip())
+        ADD_AGENTS = int(f.readline().strip())
         for nlaunch in range(NLAUNCH):
             num = int(f.readline().strip())
             print(num)
@@ -88,7 +89,7 @@ def read_benchmark(file_name, algoNum):
                 print(algo)
                 algores = []
                 while True:
-                    nagents = int(f.readline().strip())
+                    nagents = int(f.readline().strip()) * ADD_AGENTS
                     flag = int(f.readline().strip())
                     if flag == 0:
                         break
