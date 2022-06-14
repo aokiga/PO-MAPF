@@ -1,10 +1,10 @@
-#ifndef PO_MAPF_MPPASTARPARAM_H
-#define PO_MAPF_MPPASTARPARAM_H
+#ifndef PO_MAPF_POHCASTARPARAM_H
+#define PO_MAPF_POHCASTARPARAM_H
 
 #include <vector>
-#include "../../../scen/Scenario.h"
-#include "../../MAPF/MAPFParam.h"
-#include "../../MAPF/PPAStar/PPAStarParam.h"
+#include "../../scen/Scenario.h"
+#include "../MAPF/MAPFParam.h"
+#include "../MAPF/PPAStar/PPAStarParam.h"
 
 enum class ExchangeMode {
     ALL,
@@ -28,7 +28,7 @@ enum class NoPathStrategy {
     MOVEMENT,
 };
 
-class MPPAStarParam: public MAPFParam {
+class POHCAStarParam: public MAPFParam {
 private:
     static std::vector<int> getRandomPrior(Scenario &scen);
     static std::vector<int> getLongestFirstPrior(Scenario &scen);
@@ -48,18 +48,18 @@ public:
     ExchangeMode exchangeMode = ExchangeMode::VISIBLE_CHAIN;
     int visionRadius = 3;
 
-    MPPAStarParam(MPPAStarParam const &other)  : MAPFParam(other) {
+    POHCAStarParam(POHCAStarParam const &other)  : MAPFParam(other) {
         this->priority = other.priority;
     }
 
     std::string getName() override {
-        return "MPPAStar";
+        return "POHCAStar";
     }
 
-    MPPAStarParam() = default;
+    POHCAStarParam() = default;
 
     std::vector<int> getPrior(Scenario &Scen) const;
 };
 
 
-#endif //PO_MAPF_MPPASTARPARAM_H
+#endif //PO_MAPF_POHCASTARPARAM_H

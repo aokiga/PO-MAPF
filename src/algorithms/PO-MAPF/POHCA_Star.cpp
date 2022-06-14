@@ -1,13 +1,11 @@
-#include "MPPA_Star.h"
+#include "POHCA_Star.h"
 #include <set>
 #include <iostream>
 #include <map>
 #include <random>
 #include <chrono>
 
-std::mt19937 gg(std::chrono::steady_clock::now().time_since_epoch().count());
-
-AgentResult MPPA_Star::computePathForAgent(
+AgentResult POHCA_Star::computePathForAgent(
         Agent &a,
         VertexConstraints &vertexConstraints,
         EdgeConstraints &edgeConstraints,
@@ -80,7 +78,7 @@ void predictCellsAgentStrategy(int agentPos, int otherAgentPos, VertexConstraint
     ec.insert(std::make_tuple(0, agentPos, otherAgentPos));
 }
 
-void predictCellsSquareStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec,  bool isPlus = false) {
+void predictCellsSquareStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec,  std::mt19937 &gg, bool isPlus = false) {
     predictCellsAgentStrategy(agentPos, otherAgentPos, vc, ec);
     std::vector<int> neighbors = map.get_neighbors(otherAgentPos);
     if (neighbors.empty()) return;
@@ -95,7 +93,7 @@ void predictCellsSquareStrategy(int agentPos, int otherAgentPos, POMap& map, Ver
     }
 }
 
-void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec, bool isPlus = false) {
+void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, VertexConstraints &vc, EdgeConstraints& ec, std::mt19937 &gg, bool isPlus = false) {
     predictCellsAgentStrategy(agentPos, otherAgentPos, vc, ec);
     Cell agentCell = map.intToCell(agentPos);
     Cell otherAgentCell = map.intToCell(otherAgentPos);
@@ -135,7 +133,7 @@ void predictCellsPositionStrategy(int agentPos, int otherAgentPos, POMap& map, V
     }
 }
 
-void MPPA_Star::predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec) {
+void POHCA_Star::predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec, std::mt19937 &gg) {
     int curv = map[agentNum].cellToInt(curpos[agentNum]);
     if (prevlastSeen[agentNum][otherAgentNum] + 1 == lastSeen[agentNum][otherAgentNum]) {
         if (prevcurpos[otherAgentNum] != curpos[otherAgentNum]) {
@@ -152,10 +150,10 @@ void MPPA_Star::predictCellsMovementStrategy(int agentNum, int otherAgentNum, Ve
             }
         }
     }
-    predictCellsPositionStrategy(agentNum, otherAgentNum, map[agentNum], vc, ec, true);
+    predictCellsPositionStrategy(agentNum, otherAgentNum, map[agentNum], vc, ec, gg, true);
 }
 
-void MPPA_Star::predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec) {
+void POHCA_Star::predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec, std::mt19937 &gg) {
     int curv = map[agentNum].cellToInt(curpos[agentNum]);
     int curt = map[agentNum].cellToInt(curpos[otherAgentNum]);
     switch (param->noPathStrategy) {
@@ -163,19 +161,19 @@ void MPPA_Star::predictCells(int agentNum, int otherAgentNum, VertexConstraints 
             predictCellsAgentStrategy(curv, curt, vc, ec);
             break;
         case (NoPathStrategy::SQUARE):
-            predictCellsSquareStrategy(curv, curt, map[agentNum], vc, ec);
+            predictCellsSquareStrategy(curv, curt, map[agentNum], vc, ec, gg);
             break;
         case (NoPathStrategy::POSITION):
-            predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec);
+            predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec, gg);
             break;
         case (NoPathStrategy::SQUARE_P):
-            predictCellsSquareStrategy(curv, curt, map[agentNum], vc, ec, true);
+            predictCellsSquareStrategy(curv, curt, map[agentNum], vc, ec, gg, true);
             break;
         case (NoPathStrategy::POSITION_P):
-            predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec, true);
+            predictCellsPositionStrategy(curv, curt, map[agentNum], vc, ec, gg, true);
             break;
         case (NoPathStrategy::MOVEMENT):
-            predictCellsMovementStrategy(agentNum, otherAgentNum, vc, ec);
+            predictCellsMovementStrategy(agentNum, otherAgentNum, vc, ec, gg);
             break;
     }
 }
@@ -196,7 +194,7 @@ void printMoves(std::vector<int> &bestMoves, std::vector<int> &waitMoves, std::v
     printCells(backMoves, map);
 }
 
-void MPPA_Star::countMoves(
+void POHCA_Star::countMoves(
         int agentNum,
         std::vector<int> &bestMove,
         std::vector<int> &waitMove,
@@ -321,8 +319,10 @@ void markBadDfs(int v, std::map<int, std::vector<std::pair<int, int>>> &g, std::
     }
 }
 
-ScenarioResult MPPA_Star::run() {
+ScenarioResult POHCA_Star::run() {
     //printAgentsInfo(scenario.agents);
+
+    std::mt19937 gg(std::chrono::steady_clock::now().time_since_epoch().count());
 
     std::vector<int> prior = param->getPrior(scenario);
     std::vector<std::pair<int, int>> schedule(scenario.agents.size());
@@ -443,7 +443,7 @@ ScenarioResult MPPA_Star::run() {
             for (int t: visibleAgents) {
                 if (curpos[t] == scenario.agents[t].end) continue;
                 if (!param->sendPathFlag) {
-                    predictCells(agentNum, t, vertexConstraints, edgeConstraints);
+                    predictCells(agentNum, t, vertexConstraints, edgeConstraints, gg);
                     continue;
                 }
                 if (needReplanning.count(t) > 0 && prior[t] < x.first) continue;
@@ -630,7 +630,7 @@ ScenarioResult MPPA_Star::run() {
                         VertexConstraints vvc;
                         EdgeConstraints eec;
                         for (auto j: visibilityGraph[i]) {
-                            predictCells(i, j, vvc, eec);
+                            predictCells(i, j, vvc, eec, gg);
                         }
                         for (int j = 0; j < res1[i].path.size(); ++j) {
                             auto c = res1[i].path[j];
@@ -723,7 +723,7 @@ ScenarioResult MPPA_Star::run() {
     return sres;
 }
 
-std::vector<std::vector<int>> MPPA_Star::buildVisibilityGraph() {
+std::vector<std::vector<int>> POHCA_Star::buildVisibilityGraph() {
     int n = int(scenario.agents.size());
     std::vector<std::vector<int>> vg(n);
     for (int agentNum = 0; agentNum < n; agentNum++) {
@@ -746,7 +746,7 @@ void dfs(int v, int color, std::vector<int> &used, std::vector<std::vector<int>>
     }
 }
 
-std::vector<std::vector<int>> MPPA_Star::buildGraphClosure(std::vector<std::vector<int>> &graph) {
+std::vector<std::vector<int>> POHCA_Star::buildGraphClosure(std::vector<std::vector<int>> &graph) {
     int n = (int)graph.size();
     int k = 0;
     std::vector<int> used(n, 0);
@@ -770,7 +770,7 @@ std::vector<std::vector<int>> MPPA_Star::buildGraphClosure(std::vector<std::vect
     return ng;
 }
 
-std::set<int> MPPA_Star::exchangeMap(int agentNum, std::vector<int> &agents) {
+std::set<int> POHCA_Star::exchangeMap(int agentNum, std::vector<int> &agents) {
     std::set<int> res = {};
     if (!(param->sendMapFlag)) return res;
     for (int &i: agents) {
@@ -787,13 +787,13 @@ std::set<int> MPPA_Star::exchangeMap(int agentNum, std::vector<int> &agents) {
     return res;
 }
 
-void MPPA_Star::registerNewVisibleCells(int agentNum, std::set<int> &cells) {
+void POHCA_Star::registerNewVisibleCells(int agentNum, std::set<int> &cells) {
     for (auto &v: cells) {
         map[agentNum].isKnown[v] = true;
     }
 }
 
-bool MPPA_Star::checkTimeLimit(double timeBegin) const {
+bool POHCA_Star::checkTimeLimit(double timeBegin) const {
     auto currtime = (double)clock();
     double runtime = (currtime - timeBegin) / CLOCKS_PER_SEC;
     return runtime > 20;

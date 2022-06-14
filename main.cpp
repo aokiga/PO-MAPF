@@ -12,7 +12,7 @@
 #include "src/io/ScenReader.h"
 #include "src/algorithms/MAPF/PPAStar/PPAStar.h"
 #include "src/scen/BenchmarkResult.h"
-#include "src/algorithms/PO-MAPF/Centralized/MPPA_Star.h"
+#include "src/algorithms/PO-MAPF/POHCA_Star.h"
 
 #include <vector>
 #include <string>
@@ -27,8 +27,8 @@ ScenarioResult launchAlgorithm(Map &map, Scenario &scen, MAPFParam* param, doubl
     if (param->getName() == "PPAStar") {
         return PPAStar(map, scen, param, timeLimit).run();
     }
-    if (param->getName() == "MPPAStar") {
-        return MPPA_Star(map, scen, param, (int)timeLimit).run();
+    if (param->getName() == "POHCAStar") {
+        return POHCA_Star(map, scen, param, (int)timeLimit).run();
     }
 }
 

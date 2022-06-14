@@ -1,10 +1,10 @@
-#include "MPPAStarParamReader.h"
+#include "POHCAStarParamReader.h"
 
 #include <string>
 #include <fstream>
 
-MPPAStarParam MPPAStarParamReader::readParam(std::ifstream &in) {
-    MPPAStarParam res;
+POHCAStarParam POHCAStarParamReader::readParam(std::ifstream &in) {
+    POHCAStarParam res;
     std::string tmp;
     in >> tmp;
     while (true) {

@@ -1,17 +1,18 @@
-#ifndef PO_MAPF_MPPA_STAR_H
-#define PO_MAPF_MPPA_STAR_H
+#ifndef PO_MAPF_POHCA_STAR_H
+#define PO_MAPF_POHCA_STAR_H
 
 
 #include <unordered_map>
-#include "../../MAPF/MAPFAlgorithm.h"
-#include "../../MAPF/Constraints.h"
-#include "../../../map/POMap.h"
-#include "MPPAStarParam.h"
+#include "../MAPF/MAPFAlgorithm.h"
+#include "../MAPF/Constraints.h"
+#include "../../map/POMap.h"
+#include "POHCAStarParam.h"
 #include <set>
+#include <random>
 
-class MPPA_Star: public MAPFAlgorithm {
+class POHCA_Star: public MAPFAlgorithm {
 private:
-    MPPAStarParam* param;
+    POHCAStarParam* param;
     Scenario scenario;
     std::vector<Cell> curpos, prevcurpos;
     std::vector<POMap> map;
@@ -30,8 +31,8 @@ private:
 
     bool checkTimeLimit(double timeBegin) const;
 
-    void predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec);
-    void predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec);
+    void predictCells(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec, std::mt19937 &gg);
+    void predictCellsMovementStrategy(int agentNum, int otherAgentNum, VertexConstraints &vc, EdgeConstraints& ec, std::mt19937 &gg);
 
     void countMoves(
             int agentNum,
@@ -42,8 +43,8 @@ private:
             EdgeConstraints &ec
     );
 public:
-    MPPA_Star(Map &g, Scenario &scen, MAPFParam* paramMAPF, int _tl = -1): scenario(scen), moveLimit(_tl) {
-        param = dynamic_cast<MPPAStarParam*>(paramMAPF);
+    POHCA_Star(Map &g, Scenario &scen, MAPFParam* paramMAPF, int _tl = -1): scenario(scen), moveLimit(_tl) {
+        param = dynamic_cast<POHCAStarParam*>(paramMAPF);
 
         int n = scenario.agents.size();
 
@@ -59,4 +60,4 @@ public:
 };
 
 
-#endif //PO_MAPF_MPPA_STAR_H
+#endif //PO_MAPF_POHCA_STAR_H

@@ -3,8 +3,8 @@
 #include "../../algorithms/MAPF/CBS/CBSParam.h"
 #include "algorithms/CBS/CBSParamReader.h"
 #include "../../configuration/BenchmarkParams.h"
-#include "../../algorithms/PO-MAPF/Centralized/MPPAStarParam.h"
-#include "algorithms/MPPAStar/MPPAStarParamReader.h"
+#include "../../algorithms/PO-MAPF/POHCAStarParam.h"
+#include "algorithms/MPPAStar/POHCAStarParamReader.h"
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -63,7 +63,7 @@ LaunchParams ConfigurationReader::readLaunchParams(std::ifstream &in) {
                 continue;
             }
             if (name == "MPPAStar") {
-                res.param = new MPPAStarParam(MPPAStarParamReader::readParam(in));
+                res.param = new POHCAStarParam(POHCAStarParamReader::readParam(in));
                 continue;
             }
         }
@@ -133,8 +133,8 @@ BenchmarkParams ConfigurationReader::readBenchmarkParams(std::ifstream &in) {
                 res.params.push_back(new PPAStarParam(PPAStarParamReader::readParam(in)));
                 continue;
             }
-            if (name == "MPPAStar") {
-                res.params.push_back(new MPPAStarParam(MPPAStarParamReader::readParam(in)));
+            if (name == "POHCAStar") {
+                res.params.push_back(new POHCAStarParam(POHCAStarParamReader::readParam(in)));
                 continue;
             }
         }

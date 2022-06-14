@@ -1,8 +1,8 @@
-#include "MPPAStarParam.h"
-#include "../../../scen/Scenario.h"
+#include "POHCAStarParam.h"
+#include "../../scen/Scenario.h"
 #include <vector>
 
-std::vector<int> MPPAStarParam::getPrior(Scenario &scen) const {
+std::vector<int> POHCAStarParam::getPrior(Scenario &scen) const {
     switch (priority) {
         case (Priority::RANDOM):
             return getRandomPrior(scen);
@@ -13,18 +13,18 @@ std::vector<int> MPPAStarParam::getPrior(Scenario &scen) const {
     }
 }
 
-std::vector<int> MPPAStarParam::getRandomPrior(Scenario &scen) {
+std::vector<int> POHCAStarParam::getRandomPrior(Scenario &scen) {
     std::vector<int> res(scen.agents.size());
     for (int &re : res) {
         re = rand();
     }
     return res;
 }
-int MPPAStarParam::getPathLength(Cell start, Cell end) {
+int POHCAStarParam::getPathLength(Cell start, Cell end) {
     return abs(start.first - end.first) + abs(start.second - end.second);
 }
 
-std::vector<int> MPPAStarParam::getLongestFirstPrior(Scenario &scen) {
+std::vector<int> POHCAStarParam::getLongestFirstPrior(Scenario &scen) {
     std::vector<int> res(scen.agents.size());
     std::vector<std::pair<int, int>> tmp(scen.agents.size());
     for (int i = 0; i < res.size(); ++i) {
@@ -38,7 +38,7 @@ std::vector<int> MPPAStarParam::getLongestFirstPrior(Scenario &scen) {
     return res;
 }
 
-std::vector<int> MPPAStarParam::getShortestFirstPrior(Scenario &scen) {
+std::vector<int> POHCAStarParam::getShortestFirstPrior(Scenario &scen) {
     std::vector<int> res(scen.agents.size());
     std::vector<std::pair<int, int>> tmp(scen.agents.size());
     for (int i = 0; i < res.size(); ++i) {
