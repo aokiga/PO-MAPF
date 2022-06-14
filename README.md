@@ -2,15 +2,15 @@
 This repository contains the POHCA* algorithm for solving the PO-MAPF problem.
 
 ##### Table of Contents
-[Setting parameters](#setting-parameters)   
-[POHCA parameters](#pohca-parameters)
-[Visualization](#visualization)    
-[Benchmarks](#benchmarks)
+1. [Setting parameters](#setting-parameters)   
+2. [POHCA parameters](#pohca-parameters)     
+3. [Visualization](#visualization)    
+4. [Benchmarks](#benchmarks)
 
 
-<a name="params"/>
+<a name="/params"/>
 
-##Setting parameters
+## Setting parameters
 
 The format of input data for maps/scenarios is taken from the resource [Movingai.com](https://movingai.com/benchmarks/mapf.html).
 
@@ -27,7 +27,7 @@ LAUNCH {
     <ALGORITHM params>
 }
 ```
-###Possible parameters:
+### Possible parameters:
 
 - `MAP_FILE_NAME <NAME>` - File name of file containing a map
 - `SCEN_FILE_NAME <NAME>` - File name of file containing a scenario
@@ -36,7 +36,9 @@ LAUNCH {
 
 After the algorithm is started, it will leave behind a file with the `.ans` extension. It can be used for visualization in a notebook.
 
-##POHCA parameters
+<a name="/pohca-parameters"/>
+
+## POHCA parameters
 
 The keyword `ALGORITHM` is used to set parameter algorithms.  
 
@@ -48,7 +50,7 @@ ALGORITHM POHCAStar {
 }
 ```
 
-###Possible parameters:
+### Possible parameters:
 
 - `NAME <NAME>` - the name of the algorithm in the resulting file
 - `PRIORITY <PRIORIY_STRATEGY>` - priority allocation strategy
@@ -66,16 +68,16 @@ ALGORITHM POHCAStar {
 - `NO_PATH_STRATEGY <STRATEGY>` - Choosing a strategy for a fully decentralized version
 
 
-<a name="visualization"/>
+<a name="/visualization"/>
 
-##Visualization
+## Visualization
 
 To visualize the result of the algorithm, it is proposed to use Jupyter Notebook `visualization/visualization.ipynb`.    
 Inside this notebook you can find examples of interaction and visualization of benchmarks or the result of the algorithm.
 
-<a name="visualization"/>
+<a name="benchmarks"/>
 
-##Benchmarks
+## Benchmarks
 
 The benchmark mode is also supported in the configuration file.   
 Each algorithm will be called `N_LAUNCH` times for a different number of agents. The number of agents is initially 1, but after each launch it increases by `ADD_AGENTS` to the `MAX_AGENT_NUM` limit.    
